@@ -1,6 +1,15 @@
 import { Menu, Search, Bell, User } from 'lucide-react'
+import { useState } from 'react'
 
 const TopBar = ({ onMenuClick }) => {
+  const [selectedWarehouse, setSelectedWarehouse] = useState('Fort Lauderdale, Florida')
+
+  const handleWarehouseChange = (event) => {
+    const newWarehouse = event.target.value
+    setSelectedWarehouse(newWarehouse)
+    console.log(`Warehouse changed to: ${newWarehouse}`)
+    // TODO: Fetch warehouse-specific data here
+  }
   return (
     <div className="sticky top-0 z-30 bg-white border-b border-gray-200">
       <div className="flex items-center justify-between h-16 px-6">
@@ -26,6 +35,21 @@ const TopBar = ({ onMenuClick }) => {
 
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
+          {/* Warehouse Location Toggle */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700 hidden sm:block">
+              Warehouse:
+            </label>
+            <select
+              value={selectedWarehouse}
+              onChange={handleWarehouseChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-900 bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+            >
+              <option value="Fort Lauderdale, Florida">Fort Lauderdale, Florida</option>
+              <option value="Bronx, New York">Bronx, New York</option>
+            </select>
+          </div>
+
           {/* Notifications */}
           <button className="relative p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-lg">
             <Bell className="w-6 h-6" />

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Package, Truck, Ship, TrendingUp, Clock, User, FileText } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../components/StatCard'
+import TimeZoneDisplay from '../components/TimeZoneDisplay'
 import { format } from 'date-fns'
 
 // Mock data - replace with actual API calls
@@ -84,6 +86,58 @@ const mockActivity = [
 
 const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
+  const [productsDate, setProductsDate] = useState(new Date().toISOString().split('T')[0])
+  const [inboundDate, setInboundDate] = useState(new Date().toISOString().split('T')[0])
+
+  // Mock data for Products chart - TODO: Replace with AI/dynamic data based on selected date
+  const productsData = [
+    { name: 'On Hold', value: 45 },
+    { name: 'Active', value: 128 },
+    { name: 'Inactive', value: 23 },
+    { name: 'ALL SKU\'s', value: 196 }
+  ]
+
+  // Mock data for Inbound chart - TODO: Replace with AI/dynamic data based on selected date
+  const inboundData = [
+    { name: 'On Hold', value: 12 },
+    { name: 'Expected', value: 67 },
+    { name: 'Rework', value: 8 },
+    { name: 'In Process', value: 34 }
+  ]
+
+  // Mock data for Warehouse section - TODO: Replace with AI/live warehouse data
+  const warehouseData = [
+    { label: 'All Boxes', count: 180, color: 'text-gray-700' },
+    { label: 'In Stock', count: 120, color: 'text-green-600' },
+    { label: 'Low Stock', count: 40, color: 'text-yellow-600' },
+    { label: 'Out Of Stock', count: 20, color: 'text-red-600' }
+  ]
+
+  // Mock data for metric boxes - TODO: Replace with AI/dynamic data
+  const outboundData = [
+    { label: 'On Hold', count: 12, color: 'text-yellow-600' },
+    { label: 'Pending', count: 8, color: 'text-orange-600' },
+    { label: 'Inbox', count: 25, color: 'text-blue-600' },
+    { label: 'In Process', count: 15, color: 'text-blue-600' },
+    { label: 'Routing', count: 5, color: 'text-purple-600' },
+    { label: 'Ready', count: 32, color: 'text-green-600' }
+  ]
+
+  const reworkData = [
+    { label: 'On Hold', count: 3, color: 'text-yellow-600' },
+    { label: 'Pending', count: 7, color: 'text-orange-600' },
+    { label: 'Inbox', count: 12, color: 'text-blue-600' },
+    { label: 'In Process', count: 9, color: 'text-blue-600' },
+    { label: 'Ready', count: 18, color: 'text-green-600' }
+  ]
+
+  const supportData = [
+    { label: 'On Hold', count: 5, color: 'text-yellow-600' },
+    { label: 'Pending', count: 11, color: 'text-orange-600' },
+    { label: 'Inbox', count: 8, color: 'text-blue-600' },
+    { label: 'In Process', count: 14, color: 'text-blue-600' },
+    { label: 'Ready', count: 22, color: 'text-green-600' }
+  ]
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -133,6 +187,9 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Time Zone Display */}
+      <TimeZoneDisplay />
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {mockStats.map((stat, index) => (
@@ -140,64 +197,199 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Charts and Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart Placeholder */}
-        <div className="lg:col-span-2 card p-6">
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Products Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Inventory Trends</h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Clock className="w-4 h-4" />
-              <span>Last 30 days</span>
+            <h3 className="text-lg font-medium text-gray-900">Products</h3>
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">Select Date for Products:</label>
+              <input
+                type="date"
+                value={productsDate}
+                onChange={(e) => setProductsDate(e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
             </div>
           </div>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-            <div className="text-center">
-              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-500">Chart placeholder</p>
-              <p className="text-sm text-gray-400">AI-powered analytics coming soon</p>
-            </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={productsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={false}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#ffffff', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  labelStyle={{ color: '#374151', fontWeight: '600' }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  fill="#3b82f6" 
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Activity Feed */}
-        <div className="card p-6">
+        {/* Inbound Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Recent Activity</h3>
-            <button className="text-sm text-primary-600 hover:text-primary-700">
-              View all
-            </button>
+            <h3 className="text-lg font-medium text-gray-900">Inbound</h3>
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">Select Date for Inbound:</label>
+              <input
+                type="date"
+                value={inboundDate}
+                onChange={(e) => setInboundDate(e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
           </div>
-          <div className="space-y-4">
-            {mockActivity.map((activity) => (
-              <div
-                key={activity.id}
-                className={`p-3 rounded-lg border ${getActivityColor(activity.type)}`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 mt-0.5">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900">{activity.message}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <User className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">{activity.user}</span>
-                      <span className="text-xs text-gray-400">•</span>
-                      <span className="text-xs text-gray-500">
-                        {format(activity.timestamp, 'MMM d, h:mm a')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={inboundData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={false}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#ffffff', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  labelStyle={{ color: '#374151', fontWeight: '600' }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  fill="#10b981" 
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Warehouse Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <h3 className="text-base font-medium text-gray-900 mb-3">Warehouse</h3>
+        <div className="grid grid-cols-1 gap-2">
+          {warehouseData.map((item, index) => (
+            <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+              <span className="text-sm font-medium text-gray-700">{item.label}</span>
+              <span className={`text-base font-bold ${item.color}`}>{item.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Metric Boxes Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Outbound Box */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Outbound</h3>
+          <div className="space-y-3">
+            {outboundData.map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                <span className={`text-sm font-bold ${item.color}`}>{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Rework Box */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Rework</h3>
+          <div className="space-y-3">
+            {reworkData.map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                <span className={`text-sm font-bold ${item.color}`}>{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Support Box */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Support</h3>
+          <div className="space-y-3">
+            {supportData.map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                <span className={`text-sm font-bold ${item.color}`}>{item.count}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* Activity Feed */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">Recent Activity</h3>
+          <button className="text-sm text-primary-600 hover:text-primary-700">
+            View all
+          </button>
+        </div>
+        <div className="space-y-4">
+          {mockActivity.map((activity) => (
+            <div
+              key={activity.id}
+              className={`p-3 rounded-lg border ${getActivityColor(activity.type)}`}
+            >
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  {getActivityIcon(activity.type)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900">{activity.message}</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <User className="w-3 h-3 text-gray-400" />
+                    <span className="text-xs text-gray-500">{activity.user}</span>
+                    <span className="text-xs text-gray-400">•</span>
+                    <span className="text-xs text-gray-500">
+                      {format(activity.timestamp, 'MMM d, h:mm a')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Quick Actions */}
-      <div className="card p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
