@@ -5,6 +5,7 @@ import Inventory from './pages/Inventory'
 import Receiving from './pages/Receiving'
 import Shipping from './pages/Shipping'
 import ItemDetail from './pages/ItemDetail'
+import ManageProducts from './pages/ManageProducts'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path="/inventory/products" element={<ManageProducts />} />
           <Route path="/receiving" element={<Receiving />} />
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/item/:id" element={<ItemDetail />} />

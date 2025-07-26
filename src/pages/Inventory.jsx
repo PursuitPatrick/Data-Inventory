@@ -3,7 +3,7 @@ import { Plus, Filter, Download } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
-import { format } from 'date-fns'
+import { formatDateTime } from '../utils/dateUtils'
 
 // Mock data - replace with actual API calls
 const mockInventory = [
@@ -137,7 +137,7 @@ const Inventory = () => {
       key: 'lastUpdated',
       label: 'Last Updated',
       sortable: true,
-      render: (value) => format(value, 'MMM d, h:mm a')
+      render: (value) => formatDateTime(value)
     }
   ]
 

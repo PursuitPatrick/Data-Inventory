@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Upload, Truck, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
-import { format } from 'date-fns'
+import { formatDate } from '../utils/dateUtils'
 
 // Mock data - replace with actual API calls
 const mockIncomingOrders = [
@@ -103,7 +103,7 @@ const Receiving = () => {
       key: 'expectedDate',
       label: 'Expected Date',
       sortable: true,
-      render: (value) => format(value, 'MMM d, yyyy')
+      render: (value) => formatDate(value)
     },
     {
       key: 'status',

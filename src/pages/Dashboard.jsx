@@ -3,7 +3,7 @@ import { Package, Truck, Ship, TrendingUp, Clock, User, FileText } from 'lucide-
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../components/StatCard'
 import TimeZoneDisplay from '../components/TimeZoneDisplay'
-import { format } from 'date-fns'
+import { formatDateTime } from '../utils/dateUtils'
 
 // Mock data - replace with actual API calls
 const mockStats = [
@@ -377,9 +377,9 @@ const Dashboard = () => {
                     <User className="w-3 h-3 text-gray-400" />
                     <span className="text-xs text-gray-500">{activity.user}</span>
                     <span className="text-xs text-gray-400">•</span>
-                    <span className="text-xs text-gray-500">
-                      {format(activity.timestamp, 'MMM d, h:mm a')}
-                    </span>
+                                                   <span className="text-xs text-gray-500">
+                                 {formatDateTime(activity.timestamp)}
+                               </span>
                   </div>
                 </div>
               </div>

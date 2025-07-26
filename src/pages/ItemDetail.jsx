@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Package, MapPin, Clock, TrendingUp, TrendingDown, Edit, History, Truck, Ship } from 'lucide-react'
-import { format } from 'date-fns'
+import { formatDateTime, formatDate } from '../utils/dateUtils'
 
 // Mock data - replace with actual API calls
 const mockItemDetails = {
@@ -187,7 +187,7 @@ const ItemDetail = () => {
           {getStatusLabel(item.status)}
         </div>
         <div className="text-sm text-gray-500">
-          Last updated: {format(item.lastUpdated, 'MMM d, yyyy h:mm a')}
+                          Last updated: {formatDateTime(item.lastUpdated)}
         </div>
       </div>
 
@@ -356,7 +356,7 @@ const ItemDetail = () => {
                          activity.type === 'shipped' ? 'Shipped' : 'Adjusted'} {Math.abs(activity.quantity)} units
                       </p>
                       <span className="text-xs text-gray-500">
-                        {format(activity.date, 'MMM d, h:mm a')}
+                        {formatDateTime(activity.date)}
                       </span>
                     </div>
                     <div className="mt-1 text-sm text-gray-600">
@@ -390,7 +390,7 @@ const ItemDetail = () => {
                     <span className="text-sm font-medium text-gray-900">{location.to}</span>
                   </div>
                   <div className="mt-1 text-xs text-gray-500">
-                    {format(location.date, 'MMM d, yyyy')} • {location.user}
+                    {formatDate(location.date)} • {location.user}
                   </div>
                 </div>
               </div>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Ship, Clock, CheckCircle, Printer, MapPin, Package } from 'lucide-react'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
-import { format } from 'date-fns'
+import { formatDate } from '../utils/dateUtils'
 
 // Mock data - replace with actual API calls
 const mockOutgoingShipments = [
@@ -118,7 +118,7 @@ const Shipping = () => {
       key: 'shipDate',
       label: 'Ship Date',
       sortable: true,
-      render: (value) => format(value, 'MMM d, yyyy')
+      render: (value) => formatDate(value)
     },
     {
       key: 'status',
