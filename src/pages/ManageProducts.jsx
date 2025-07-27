@@ -20,16 +20,17 @@ const ManageProducts = () => {
 
   // Mock product data - TODO: Replace with API data based on selected tab
   const mockProducts = [
-    { id: 1, sku: 'SKU001', clientId: 'ClientA', description: 'Blue Jacket Size L', lastUpdate: '2025-01-26T00:00:00Z', status: 'Active' },
-    { id: 2, sku: 'SKU002', clientId: 'ClientB', description: 'Red T-Shirt Size M', lastUpdate: '2025-01-25T00:00:00Z', status: 'Active' },
-    { id: 3, sku: 'SKU003', clientId: 'ClientC', description: 'Black Jeans Size 32', lastUpdate: '2025-01-24T00:00:00Z', status: 'On Hold' },
-    { id: 4, sku: 'SKU004', clientId: 'ClientA', description: 'White Sneakers Size 10', lastUpdate: '2025-01-23T00:00:00Z', status: 'Inactive' },
-    { id: 5, sku: 'SKU005', clientId: 'ClientD', description: 'Green Hoodie Size XL', lastUpdate: '2025-01-22T00:00:00Z', status: 'Active' },
-    { id: 6, sku: 'SKU006', clientId: 'ClientE', description: 'Leather Wallet Brown', lastUpdate: '2025-01-21T00:00:00Z', status: 'On Hold' },
-    { id: 7, sku: 'SKU007', clientId: 'ClientF', description: 'Silver Watch Classic', lastUpdate: '2025-01-20T00:00:00Z', status: 'Discontinued' },
-    { id: 8, sku: 'SKU008', clientId: 'ClientG', description: 'Cotton Socks Pack', lastUpdate: '2025-01-19T00:00:00Z', status: 'Inactive' },
-    { id: 9, sku: 'SKU009', clientId: 'ClientH', description: 'Denim Jacket Blue', lastUpdate: '2025-01-18T00:00:00Z', status: 'Active' },
-    { id: 10, sku: 'SKU010', clientId: 'ClientI', description: 'Running Shoes Black', lastUpdate: '2025-01-17T00:00:00Z', status: 'Discontinued' }
+    { id: 1, sku: 'SKU001', clientId: 'ClientA', description: 'Blue Jacket Size L', lastUpdate: '2025-01-26T00:00:00Z', status: 'Active', priority: 'High' },
+    { id: 2, sku: 'SKU002', clientId: 'ClientB', description: 'Red T-Shirt Size M', lastUpdate: '2025-01-25T00:00:00Z', status: 'Active', priority: 'Medium' },
+    { id: 3, sku: 'SKU003', clientId: 'ClientC', description: 'Black Jeans Size 32', lastUpdate: '2025-01-24T00:00:00Z', status: 'On Hold', priority: 'High' },
+    { id: 4, sku: 'SKU004', clientId: 'ClientA', description: 'White Sneakers Size 10', lastUpdate: '2025-01-23T00:00:00Z', status: 'Inactive', priority: 'Low' },
+    { id: 5, sku: 'SKU005', clientId: 'ClientD', description: 'Green Hoodie Size XL', lastUpdate: '2025-01-22T00:00:00Z', status: 'Active', priority: 'Medium' },
+    { id: 6, sku: 'SKU006', clientId: 'ClientE', description: 'Leather Wallet Brown', lastUpdate: '2025-01-21T00:00:00Z', status: 'On Hold', priority: 'High' },
+    { id: 7, sku: 'SKU007', clientId: 'ClientF', description: 'Silver Watch Classic', lastUpdate: '2025-01-20T00:00:00Z', status: 'Discontinued', priority: 'Low' },
+    { id: 8, sku: 'SKU008', clientId: 'ClientG', description: 'Cotton Socks Pack', lastUpdate: '2025-01-19T00:00:00Z', status: 'Inactive', priority: 'Low' },
+    { id: 9, sku: 'SKU009', clientId: 'ClientH', description: 'Denim Jacket Blue', lastUpdate: '2025-01-18T00:00:00Z', status: 'Active', priority: 'Medium' },
+    { id: 10, sku: 'SKU010', clientId: 'ClientI', description: 'Running Shoes Black', lastUpdate: '2025-01-17T00:00:00Z', status: 'Discontinued', priority: 'Low' },
+    { id: 11, sku: 'SKU011', clientId: 'ClientJ', description: 'Wireless Headphones', lastUpdate: '2025-01-16T00:00:00Z', status: 'Active', priority: 'High' }
   ]
 
   // Filter products based on active tab
@@ -293,7 +294,10 @@ const ManageProducts = () => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id)
+                setCurrentPage(1) // Reset to first page when switching tabs
+              }}
               className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
@@ -307,27 +311,35 @@ const ManageProducts = () => {
       </div>
 
       {/* Column Headers */}
-      <div className="bg-gray-800 text-white px-4 py-2 grid grid-cols-6 text-sm font-medium">
+      <div className="bg-black text-white px-4 py-2 grid grid-cols-11 text-sm font-medium">
         <div className="flex items-center pl-2">
           <input type="checkbox" className="w-4 h-4" />
         </div>
         <div>SKU</div>
         <div>Client ID</div>
         <div>Description</div>
+        <div>Category</div>
+        <div>Price</div>
+        <div>Stock</div>
         <div>Last Update</div>
         <div>Status</div>
+        <div>Priority</div>
+        <div>Action</div>
       </div>
 
       {/* Product Rows */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {getPaginatedProducts().map((product) => (
-          <div key={product.id} className="grid grid-cols-6 border-b border-gray-200 py-3 px-4 text-sm text-gray-800 hover:bg-gray-50">
+          <div key={product.id} className="grid grid-cols-11 border-b border-gray-200 py-3 px-4 text-sm text-gray-800 hover:bg-gray-50">
             <div className="flex items-center pl-2">
               <input type="checkbox" className="w-4 h-4" />
             </div>
             <div className="flex items-center">{product.sku}</div>
             <div className="flex items-center">{product.clientId}</div>
             <div className="flex items-center">{product.description}</div>
+            <div className="flex items-center">-</div>
+            <div className="flex items-center">-</div>
+            <div className="flex items-center">-</div>
             <div className="flex items-center text-xs">
               {formatDateWithDay(product.lastUpdate)}
             </div>
@@ -340,6 +352,20 @@ const ManageProducts = () => {
               }`}>
                 {product.status}
               </span>
+            </div>
+            <div className="flex items-center">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                product.priority === 'High' ? 'bg-red-100 text-red-800' :
+                product.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-green-100 text-green-800'
+              }`}>
+                {product.priority || 'Low'}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <button className="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                View
+              </button>
             </div>
           </div>
         ))}

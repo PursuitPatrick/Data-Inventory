@@ -2,35 +2,27 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 
-const ReceivingLayout = ({ children }) => {
+const ReworkLayout = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
-  const [isReportsOpen, setIsReportsOpen] = useState(false)
   const dropdownRef = useRef(null)
-  const reportsDropdownRef = useRef(null)
 
   const options = [
-    { label: 'Manage POs', path: '/receiving/manage-pos' },
-    { label: 'Create PO', path: '/receiving/create-po' },
-    { label: 'PO Lookup', path: '/receiving/po-lookup' }
-  ]
-
-  const reportsOptions = [
-    { label: 'Receiving Log', path: '/receiving/reports/log' }
+    { label: 'Manage Rework', path: '/rework/manage' },
+    { label: 'Create Rework', path: '/rework/create' },
+    { label: 'Rework History', path: '/rework/history' },
+    { label: 'Rework Reports', path: '/rework/reports' }
   ]
 
   const getCurrentLabel = () => {
-    return 'Purchase Order Pipeline'
+    return 'Rework Pipeline'
   }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false)
-      }
-      if (reportsDropdownRef.current && !reportsDropdownRef.current.contains(event.target)) {
-        setIsReportsOpen(false)
       }
     }
 
@@ -43,14 +35,12 @@ const ReceivingLayout = ({ children }) => {
   const handleOptionClick = (path) => {
     navigate(path)
     setIsOpen(false)
-    setIsReportsOpen(false)
   }
 
   return (
     <div className="p-6">
-      {/* Dropdowns Container */}
-      <div className="mb-4 flex space-x-4">
-        {/* Purchase Order Pipeline Dropdown */}
+      {/* Rework Pipeline Dropdown */}
+      <div className="mb-4">
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -78,35 +68,6 @@ const ReceivingLayout = ({ children }) => {
             </div>
           )}
         </div>
-
-        {/* Reports Dropdown */}
-        <div className="relative" ref={reportsDropdownRef}>
-          <button
-            onClick={() => setIsReportsOpen(!isReportsOpen)}
-            className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <span>Reports</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${isReportsOpen ? 'rotate-180' : ''}`} />
-          </button>
-
-          {isReportsOpen && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                {reportsOptions.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleOptionClick(option.path)}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                      location.pathname === option.path ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
       
       {/* Page Content */}
@@ -117,4 +78,4 @@ const ReceivingLayout = ({ children }) => {
   )
 }
 
-export default ReceivingLayout 
+export default ReworkLayout 
