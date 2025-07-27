@@ -18,6 +18,7 @@ const WebFormPage = () => {
   const [touched, setTouched] = useState({})
   const [selectedShippingType, setSelectedShippingType] = useState('')
   const [selectedShippingMethod, setSelectedShippingMethod] = useState('')
+  const [poLines, setPoLines] = useState([])
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -31,6 +32,11 @@ const WebFormPage = () => {
         ...prev,
         [field]: ''
       }))
+    }
+    
+    // Real-time validation for required fields
+    if (['clientId', 'dc', 'poNum', 'expArrivalDate'].includes(field)) {
+      validateField(field, value)
     }
   }
 
@@ -75,7 +81,7 @@ const WebFormPage = () => {
   }
 
   const isFormValid = () => {
-    const requiredFields = ['clientId', 'skuCode', 'description', 'descriptionForCustoms', 'hsCode']
+    const requiredFields = ['clientId', 'dc', 'poNum', 'expArrivalDate']
     return requiredFields.every(field => formData[field].trim() !== '')
   }
 
@@ -99,12 +105,38 @@ const WebFormPage = () => {
     setSelectedShippingMethod(value)
   }
 
+  const handleAddLine = () => {
+    const newLine = {
+      id: Date.now(),
+      sku: '',
+      qty: '',
+      ref1: '',
+      ref2: '',
+      ref3: '',
+      ref4: '',
+      ref5: ''
+    }
+    setPoLines([...poLines, newLine])
+  }
+
+  const handleLineChange = (lineId, field, value) => {
+    setPoLines(poLines.map(line => 
+      line.id === lineId ? { ...line, [field]: value } : line
+    ))
+  }
+
+  const handleDeleteLine = (lineId) => {
+    setPoLines(poLines.filter(line => line.id !== lineId))
+  }
+
   return (
-    <div>
-                       <h1 className="text-2xl font-bold mb-2">Create PO</h1>
-                 <p className="text-sm text-gray-600 mb-2">
-                   Manually enter product details to create a new product entry.
-                 </p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">Create PO</h1>
+          <p className="text-sm text-gray-600 mb-2">
+            Manually enter product details to create a new product entry.
+          </p>
                  
                  {/* Caution Message */}
                  <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded text-sm flex items-center space-x-2 mt-4 mb-6">
@@ -445,25 +477,140 @@ const WebFormPage = () => {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Add a line button */}
+      <div className="mt-8 mb-2">
+        <button
+          type="button"
+          onClick={handleAddLine}
+          className="bg-gray-100 text-gray-700 px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-200 hover:border-gray-400 transition-colors duration-200"
+        >
+          Add a line
+        </button>
+      </div>
+
+      {/* Bottom Header Row */}
+      <div className="mt-2">
+        <div className="bg-gray-800 text-white px-4 py-2 grid grid-cols-8 text-sm font-medium">
+          <div>Action</div>
+          <div>SKU</div>
+          <div>Qty</div>
+          <div>Ref 1</div>
+          <div>Ref 2</div>
+          <div>Ref 3</div>
+          <div>Ref 4</div>
+          <div>Ref 5</div>
+        </div>
+      </div>
+
+      {/* Dynamic PO Lines */}
+      {poLines.map((line) => (
+        <div key={line.id} className="bg-white border-b border-gray-200 py-3 px-4 grid grid-cols-8 text-sm">
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => handleDeleteLine(line.id)}
+              className="text-red-600 hover:text-red-800 text-sm font-medium px-2 py-1 rounded border border-red-300 hover:bg-red-50 transition-colors duration-200"
+            >
+              🗑️ Delete
+            </button>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.sku}
+              onChange={(e) => handleLineChange(line.id, 'sku', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter SKU"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.qty}
+              onChange={(e) => handleLineChange(line.id, 'qty', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter Qty"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.ref1}
+              onChange={(e) => handleLineChange(line.id, 'ref1', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter Ref 1"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.ref2}
+              onChange={(e) => handleLineChange(line.id, 'ref2', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter Ref 2"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.ref3}
+              onChange={(e) => handleLineChange(line.id, 'ref3', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter Ref 3"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.ref4}
+              onChange={(e) => handleLineChange(line.id, 'ref4', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter Ref 4"
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={line.ref5}
+              onChange={(e) => handleLineChange(line.id, 'ref5', e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter Ref 5"
+            />
+          </div>
+        </div>
+      ))}
+
+      {/* Action Buttons - Bottom Right */}
       <div className="flex justify-end space-x-2 mt-6 pt-6 border-t border-gray-200">
         <button
           type="button"
           onClick={() => navigate('/inventory/products')}
-          className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
+          className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors duration-200"
         >
           Exit Without Saving
         </button>
         <button
           type="button"
+          disabled={!isFormValid()}
           onClick={() => {
-            console.log('Create PO clicked')
-            console.log('Form data:', formData)
+            if (isFormValid()) {
+              console.log('Create PO clicked')
+              console.log('Form data:', formData)
+              console.log('PO Lines:', poLines)
+            } else {
+              console.log('Form validation failed - cannot create PO')
+            }
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className={`px-4 py-2 rounded transition-colors duration-200 ${
+            isFormValid()
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
         >
           Create PO
         </button>
+      </div>
+        </div>
       </div>
     </div>
   )

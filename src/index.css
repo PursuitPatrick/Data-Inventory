@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure dropdowns open downward */
+select {
+  direction: ltr !important;
+}
+
+select option {
+  direction: ltr !important;
+}
+
+/* Force dropdown to open downward */
+select:focus {
+  direction: ltr !important;
+}
+
+/* Additional comprehensive dropdown direction controls */
+select {
+  transform-origin: top !important;
+}
+
+select:focus {
+  transform: none !important;
+}
+
+/* Force dropdown menu to always open downward */
+select {
+  top: 100% !important;
+  bottom: auto !important;
+  transform: translateY(0) !important;
+}
+
+/* Override any auto-placement that might cause upward expansion */
+select:focus {
+  transform: none !important;
+  top: 100% !important;
+  bottom: auto !important;
+}
+
+/* Additional CSS for dropdown direction control */
+[data-dropdown-direction="down"] {
+  direction: ltr !important;
+}
+
+[data-dropdown-direction="down"]:focus {
+  transform: none !important;
+  top: 100% !important;
+  bottom: auto !important;
+}
+
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
@@ -47,5 +95,21 @@
   
   .status-reorder {
     @apply bg-danger-100 text-danger-800;
+  }
+  
+  /* Notification animation */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 } 
