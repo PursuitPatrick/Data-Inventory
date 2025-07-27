@@ -17,6 +17,7 @@ const WebFormPage = () => {
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
   const [selectedShippingType, setSelectedShippingType] = useState('')
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState('')
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -92,6 +93,10 @@ const WebFormPage = () => {
 
   const handleShippingTypeClick = (shippingType) => {
     setSelectedShippingType(prev => prev === shippingType ? '' : shippingType)
+  }
+
+  const handleShippingMethodChange = (value) => {
+    setSelectedShippingMethod(value)
   }
 
   return (
@@ -377,10 +382,21 @@ const WebFormPage = () => {
                   {/* Shipping Method Dropdown */}
                   <div className="mb-4">
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      defaultValue=""
+                      disabled={!formData.dc || formData.dc === 'Select DC...'}
+                      value={selectedShippingMethod}
+                      onChange={(e) => handleShippingMethodChange(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        !formData.dc || formData.dc === 'Select DC...'
+                          ? 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
+                          : 'border-gray-300'
+                      }`}
                     >
-                      <option value="" disabled>Select a shipping method</option>
+                      <option value="" disabled>
+                        {!formData.dc || formData.dc === 'Select DC...' 
+                          ? 'Select DC to unlock shipping methods' 
+                          : 'Select a shipping method'
+                        }
+                      </option>
                       <option value="DHLE">DHLE – DHL e-Commerce</option>
                       <option value="FDXE">FDXE – (Fedex Express)</option>
                       <option value="FDGX">FDGX – (Fedex Ground)</option>
