@@ -121,10 +121,10 @@ const WebFormPage = () => {
         Back
       </button>
 
-      {/* Two Column Layout */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Column - PO Information */}
-        <div className="w-full lg:w-1/2">
+                  {/* Three Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      {/* Left Column - PO Information */}
+              <div className="w-full">
           {/* PO Information Section Header */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-6">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -280,8 +280,8 @@ const WebFormPage = () => {
           </div>
         </div>
 
-        {/* Right Column - Shipping Details */}
-        <div className="w-full lg:w-1/2">
+                      {/* Middle Column - Shipping Details */}
+              <div className="w-full">
           {/* Shipping Details Section Header */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-6">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -410,6 +410,35 @@ const WebFormPage = () => {
                     </select>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Tracking Details */}
+        <div className="w-full">
+          {/* Tracking Details Section Header */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+              <span className="mr-2">📦</span>
+              Tracking Details
+            </h2>
+          </div>
+          
+          {/* Tracking Details Form Card */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="space-y-4">
+              {/* Container Number Input */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700">Scan The Numbers Of The Container</label>
+                  <span className="text-xs text-gray-500">Container identification</span>
+                </div>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Scan or enter container number"
+                />
               </div>
             </div>
           </div>
