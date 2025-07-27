@@ -116,7 +116,7 @@ const WebFormPage = () => {
 
   return (
     <div>
-                       <h1 className="text-2xl font-bold mb-2">Create Product (Web Form)</h1>
+                       <h1 className="text-2xl font-bold mb-2">Create SKU</h1>
                  <p className="text-sm text-gray-600 mb-2">
                    Manually enter product details to create a new product entry.
                  </p>
