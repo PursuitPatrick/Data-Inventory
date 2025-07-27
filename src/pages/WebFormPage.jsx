@@ -5,35 +5,15 @@ import { ArrowLeft } from 'lucide-react'
 const WebFormPage = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
+    date: '',
     clientId: '',
-    skuCode: '',
-    description: '',
-    descriptionForCustoms: '',
-    hsCode: '',
-    countryOfOrigin: '',
-    ref1: '',
-    ref2: '',
-    ref3: '',
-    ref4: '',
-    ref5: ''
+    dc: '',
+    rushPO: '',
+    poNum: '',
+    supplier: '',
+    expArrivalDate: ''
   })
-  const [uomData, setUomData] = useState({
-    uomNumber: '',
-    isActive: '',
-    uomType: '',
-    uomQty: '',
-    weight: '',
-    whsInsuranceValue: '',
-    shippingInsuranceValue: '',
-    billingUnits: '',
-    length: '',
-    width: '',
-    height: '',
-    cube: '',
-    alias1: '',
-    alias2: '',
-    alias3: ''
-  })
+
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
 
@@ -52,12 +32,7 @@ const WebFormPage = () => {
     }
   }
 
-  const handleUomChange = (field, value) => {
-    setUomData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
+
 
   const handleBlur = (field) => {
     setTouched(prev => ({
@@ -68,7 +43,7 @@ const WebFormPage = () => {
   }
 
   const validateField = (field, value) => {
-    const requiredFields = ['clientId', 'skuCode', 'description', 'descriptionForCustoms', 'hsCode']
+    const requiredFields = ['clientId', 'dc', 'poNum', 'expArrivalDate']
     
     if (requiredFields.includes(field) && !value.trim()) {
       setErrors(prev => ({
@@ -84,7 +59,7 @@ const WebFormPage = () => {
   }
 
   const validateForm = () => {
-    const requiredFields = ['clientId', 'skuCode', 'description', 'descriptionForCustoms', 'hsCode']
+    const requiredFields = ['clientId', 'dc', 'poNum', 'expArrivalDate']
     const newErrors = {}
     
     requiredFields.forEach(field => {
@@ -116,7 +91,7 @@ const WebFormPage = () => {
 
   return (
     <div>
-                       <h1 className="text-2xl font-bold mb-2">Create SKU</h1>
+                       <h1 className="text-2xl font-bold mb-2">Create PO</h1>
                  <p className="text-sm text-gray-600 mb-2">
                    Manually enter product details to create a new product entry.
                  </p>
@@ -124,8 +99,18 @@ const WebFormPage = () => {
                  {/* Caution Message */}
                  <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded text-sm flex items-center space-x-2 mt-4 mb-6">
                    <span>⚠️</span>
-                   <span>Please enter the information on the SKU you would like to Create SKU.</span>
+                   <span>Please enter the information on the PO you would like to create.</span>
                  </div>
+
+      {/* PO Information Section Header */}
+      <div className="mb-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 w-full max-w-2xl">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+            <span className="mr-2">📦</span>
+            PO Information
+          </h2>
+        </div>
+      </div>
 
       {/* Back Button */}
       <button
@@ -139,6 +124,20 @@ const WebFormPage = () => {
       {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-2xl">
         <form className="space-y-4">
+          {/* Date */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">Date</label>
+              <span className="text-xs text-gray-500">Date of the purchase order</span>
+            </div>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => handleInputChange('date', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
           {/* Client ID */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -147,790 +146,146 @@ const WebFormPage = () => {
               </label>
               <span className="text-xs text-gray-500">Unique identifier for the client</span>
             </div>
-            <input
-              type="text"
+            <select
               value={formData.clientId}
               onChange={(e) => handleInputChange('clientId', e.target.value)}
               onBlur={() => handleBlur('clientId')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 errors.clientId ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter client ID"
-            />
+            >
+              <option value="">Select Client ID...</option>
+              <option value="CLI-001">CLI-001 – WestCo Distribution</option>
+              <option value="CLI-002">CLI-002 – Metro Supplies</option>
+            </select>
             {errors.clientId && (
               <p className="text-red-600 text-xs mt-1">{errors.clientId}</p>
             )}
           </div>
 
-          {/* SKU Code */}
+          {/* DC */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">
-                SKU Code <span className="text-red-500">*</span>
+                DC <span className="text-red-500">*</span>
               </label>
-              <span className="text-xs text-gray-500">Stock keeping unit identifier</span>
+              <span className="text-xs text-gray-500">Distribution center identifier</span>
             </div>
-            <input
-              type="text"
-              value={formData.skuCode}
-              onChange={(e) => handleInputChange('skuCode', e.target.value)}
-              onBlur={() => handleBlur('skuCode')}
+            <select
+              value={formData.dc}
+              onChange={(e) => handleInputChange('dc', e.target.value)}
+              onBlur={() => handleBlur('dc')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.skuCode ? 'border-red-500' : 'border-gray-300'
+                errors.dc ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter SKU code"
-            />
-            {errors.skuCode && (
-              <p className="text-red-600 text-xs mt-1">{errors.skuCode}</p>
+            >
+              <option value="">Select DC...</option>
+              <option value="Fort Lauderdale, Florida">Fort Lauderdale, Florida</option>
+              <option value="Bronx, NY">Bronx, NY</option>
+            </select>
+            {errors.dc && (
+              <p className="text-red-600 text-xs mt-1">{errors.dc}</p>
             )}
           </div>
 
-          {/* Description */}
+          {/* RushPO */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">RushPO</label>
+              <span className="text-xs text-gray-500">Rush purchase order indicator</span>
+            </div>
+            <select
+              value={formData.rushPO}
+              onChange={(e) => handleInputChange('rushPO', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Select Option...</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+
+          {/* PONum */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">
-                Description <span className="text-red-500">*</span>
+                PONum <span className="text-red-500">*</span>
               </label>
-              <span className="text-xs text-gray-500">Product description for internal use</span>
+              <span className="text-xs text-gray-500">Purchase order number</span>
             </div>
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              onBlur={() => handleBlur('description')}
-              rows={3}
+            <input
+              type="text"
+              value={formData.poNum}
+              onChange={(e) => handleInputChange('poNum', e.target.value)}
+              onBlur={() => handleBlur('poNum')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
+                errors.poNum ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter product description"
+              placeholder="Enter PO number"
             />
-            {errors.description && (
-              <p className="text-red-600 text-xs mt-1">{errors.description}</p>
+            {errors.poNum && (
+              <p className="text-red-600 text-xs mt-1">{errors.poNum}</p>
             )}
           </div>
 
-          {/* Description for Customs */}
+          {/* Supplier */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">Supplier</label>
+              <span className="text-xs text-gray-500">Supplier information</span>
+            </div>
+            <input
+              type="text"
+              value={formData.supplier}
+              onChange={(e) => handleInputChange('supplier', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter supplier"
+            />
+          </div>
+
+          {/* ExpArrivalDate */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">
-                Description for Customs <span className="text-red-500">*</span>
+                ExpArrivalDate <span className="text-red-500">*</span>
               </label>
-              <span className="text-xs text-gray-500">Customs declaration description</span>
+              <span className="text-xs text-gray-500">Expected arrival date</span>
             </div>
-            <textarea
-              value={formData.descriptionForCustoms}
-              onChange={(e) => handleInputChange('descriptionForCustoms', e.target.value)}
-              onBlur={() => handleBlur('descriptionForCustoms')}
-              rows={3}
+            <input
+              type="date"
+              value={formData.expArrivalDate}
+              onChange={(e) => handleInputChange('expArrivalDate', e.target.value)}
+              onBlur={() => handleBlur('expArrivalDate')}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.descriptionForCustoms ? 'border-red-500' : 'border-gray-300'
+                errors.expArrivalDate ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter customs description"
             />
-            {errors.descriptionForCustoms && (
-              <p className="text-red-600 text-xs mt-1">{errors.descriptionForCustoms}</p>
+            {errors.expArrivalDate && (
+              <p className="text-red-600 text-xs mt-1">{errors.expArrivalDate}</p>
             )}
           </div>
-
-          {/* HS Code */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">
-                HS Code <span className="text-red-500">*</span>
-              </label>
-              <span className="text-xs text-gray-500">Harmonized System classification code</span>
-            </div>
-            <input
-              type="text"
-              value={formData.hsCode}
-              onChange={(e) => handleInputChange('hsCode', e.target.value)}
-              onBlur={() => handleBlur('hsCode')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.hsCode ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Enter HS code"
-            />
-            {errors.hsCode && (
-              <p className="text-red-600 text-xs mt-1">{errors.hsCode}</p>
-            )}
-          </div>
-
-          {/* Country of Origin */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Country of Origin</label>
-              <span className="text-xs text-gray-500">Country where product was manufactured</span>
-            </div>
-            <input
-              type="text"
-              value={formData.countryOfOrigin}
-              onChange={(e) => handleInputChange('countryOfOrigin', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter country of origin"
-            />
-          </div>
-
-          {/* Ref1 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Ref1</label>
-              <span className="text-xs text-gray-500">Reference field 1 for additional data</span>
-            </div>
-            <input
-              type="text"
-              value={formData.ref1}
-              onChange={(e) => handleInputChange('ref1', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter reference 1"
-            />
-          </div>
-
-          {/* Ref2 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Ref2</label>
-              <span className="text-xs text-gray-500">Reference field 2 for additional data</span>
-            </div>
-            <input
-              type="text"
-              value={formData.ref2}
-              onChange={(e) => handleInputChange('ref2', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter reference 2"
-            />
-          </div>
-
-          {/* Ref3 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Ref3</label>
-              <span className="text-xs text-gray-500">Reference field 3 for additional data</span>
-            </div>
-            <input
-              type="text"
-              value={formData.ref3}
-              onChange={(e) => handleInputChange('ref3', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter reference 3"
-            />
-          </div>
-
-          {/* Ref4 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Ref4</label>
-              <span className="text-xs text-gray-500">Reference field 4 for additional data</span>
-            </div>
-            <input
-              type="text"
-              value={formData.ref4}
-              onChange={(e) => handleInputChange('ref4', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter reference 4"
-            />
-          </div>
-
-          {/* Ref5 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Ref5</label>
-              <span className="text-xs text-gray-500">Reference field 5 for additional data</span>
-            </div>
-            <input
-              type="text"
-              value={formData.ref5}
-              onChange={(e) => handleInputChange('ref5', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter reference 5"
-            />
-          </div>
-
-          
         </form>
       </div>
 
-      {/* Units of Measure Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-10 w-full">
-        <h2 className="text-lg font-semibold mb-4">Units of Measure</h2>
-        
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-xs">
-            {/* Header Row */}
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left p-2 font-medium text-gray-700 w-16">UOM #</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Is Active</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">UOM Type</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">UOM Qty</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Weight</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-24">Whs Insurance</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-24">Ship Insurance</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-24">Billing Units</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Length</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Width</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Height</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Cube</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Alias 1</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Alias 2</th>
-                <th className="text-left p-2 font-medium text-gray-700 w-20">Alias 3</th>
-              </tr>
-            </thead>
-            
-            {/* Data Rows */}
-            <tbody>
-              {/* Each Row */}
-              <tr className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value="1"
-                    readOnly
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-gray-50"
-                  />
-                </td>
-                <td className="p-2">
-                  <select className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="Each"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="EA"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-              </tr>
-
-              {/* Pack Row */}
-              <tr className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value="2"
-                    readOnly
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-gray-50"
-                  />
-                </td>
-                <td className="p-2">
-                  <select className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="Pack"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="EA"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-              </tr>
-
-              {/* Inner Row */}
-              <tr className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value="3"
-                    readOnly
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-gray-50"
-                  />
-                </td>
-                <td className="p-2">
-                  <select className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="Inner"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="EA"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-              </tr>
-
-              {/* Case Row */}
-              <tr className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value="4"
-                    readOnly
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-gray-50"
-                  />
-                </td>
-                <td className="p-2">
-                  <select className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="Case"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="EA"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-              </tr>
-
-              {/* Pallet Row */}
-              <tr className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2">
-                  <input
-                    type="text"
-                    value="5"
-                    readOnly
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-gray-50"
-                  />
-                </td>
-                <td className="p-2">
-                  <select className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="Pallet"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    defaultValue="EA"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="number"
-                    defaultValue="0"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-2 mt-6 pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={() => navigate('/inventory/products')}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
-          >
-            Exit Without Saving
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              console.log('Create SKU clicked')
-              console.log('Form data:', formData)
-              console.log('UOM data:', uomData)
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Create SKU
-          </button>
-        </div>
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-2 mt-6 pt-6 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={() => navigate('/inventory/products')}
+          className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
+        >
+          Exit Without Saving
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            console.log('Create PO clicked')
+            console.log('Form data:', formData)
+          }}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Create PO
+        </button>
       </div>
     </div>
   )

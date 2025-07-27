@@ -344,7 +344,7 @@ const AdHocReceiving = () => {
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Create AdHoc PO
+          Submit AdHoc PO
         </button>
       </div>
     </div>
