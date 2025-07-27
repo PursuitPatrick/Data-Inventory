@@ -11,7 +11,7 @@ const navigation = [
     hasDropdown: true,
     dropdownItems: [
       { name: 'Products', href: '/inventory/products' },
-      { name: 'Receiving', href: '/inventory/receiving' },
+      { name: 'Receiving', href: '/receiving/manage-pos' },
       { name: 'Warehouse', href: '/inventory/warehouse' }
     ]
   },

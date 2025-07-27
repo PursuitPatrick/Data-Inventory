@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Download, Plus, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { formatDate } from '../utils/dateUtils'
+import { formatDate, formatDateWithDay } from '../utils/dateUtils'
 
 const ManageProducts = () => {
   const [activeTab, setActiveTab] = useState('Active')
@@ -122,7 +122,7 @@ const ManageProducts = () => {
         product.sku,
         product.clientId,
         `"${product.description}"`, // Wrap description in quotes to handle commas
-        formatDate(product.lastUpdate),
+        formatDateWithDay(product.lastUpdate),
         product.status
       ].join(','))
     ].join('\n')
@@ -216,71 +216,74 @@ const ManageProducts = () => {
         </div>
       </div>
 
-      {/* Pagination Dropdowns */}
-      <div className="flex justify-end space-x-4 mt-4">
-        {/* Records Per Page */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Records Per Page
-          </label>
-          <select
-            value={recordsPerPage}
-            onChange={(e) => handleRecordsPerPageChange(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-            <option value={250}>250</option>
-          </select>
+      {/* Pagination Dropdowns and Search - Vertical Stack */}
+      <div className="flex flex-col items-end mt-2 space-y-2">
+        {/* Pagination Dropdowns - Horizontal Layout */}
+        <div className="flex space-x-2 mt-1">
+          {/* Records Per Page */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Records Per Page
+            </label>
+            <select
+              value={recordsPerPage}
+              onChange={(e) => handleRecordsPerPageChange(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-28"
+            >
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={250}>250</option>
+            </select>
+          </div>
+
+          {/* Page Number */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Page
+            </label>
+            <select
+              value={currentPage}
+              onChange={(e) => handlePageChange(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-28"
+            >
+              {Array.from({ length: getTotalPages() }, (_, i) => i + 1).map((page) => (
+                <option key={page} value={page}>
+                  Page {page}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* Page Number */}
+        {/* Search Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Page
-          </label>
-          <select
-            value={currentPage}
-            onChange={(e) => handlePageChange(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {Array.from({ length: getTotalPages() }, (_, i) => i + 1).map((page) => (
-              <option key={page} value={page}>
-                Page {page}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Search Input */}
-      <div className="flex justify-end mt-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-gray-700 mb-1">
             Search
           </label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value)
-              console.log('Search term:', e.target.value)
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch()
-              }
-            }}
-            placeholder="Search by SKU, Client ID, or Order Date"
-            className="text-sm px-3 py-2 border border-gray-300 rounded w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button
-            onClick={handleSearch}
-            className="ml-2 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Search
-          </button>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                console.log('Search term:', e.target.value)
+              }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch()
+                }
+              }}
+              placeholder="Search by SKU, Client ID, or Order Date"
+              className="text-xs px-2 py-1 border border-gray-300 rounded w-32 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              onClick={handleSearch}
+              className="ml-1 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Search
+            </button>
+          </div>
         </div>
       </div>
 
@@ -325,7 +328,9 @@ const ManageProducts = () => {
             <div className="flex items-center">{product.sku}</div>
             <div className="flex items-center">{product.clientId}</div>
             <div className="flex items-center">{product.description}</div>
-            <div className="flex items-center">{formatDate(product.lastUpdate)}</div>
+            <div className="flex items-center text-xs">
+              {formatDateWithDay(product.lastUpdate)}
+            </div>
             <div className="flex items-center">
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                 product.status === 'Active' ? 'bg-green-100 text-green-800' :
