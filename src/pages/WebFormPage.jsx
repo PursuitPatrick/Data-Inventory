@@ -16,6 +16,7 @@ const WebFormPage = () => {
 
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
+  const [selectedShippingType, setSelectedShippingType] = useState('')
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -89,6 +90,10 @@ const WebFormPage = () => {
     navigate(-1)
   }
 
+  const handleShippingTypeClick = (shippingType) => {
+    setSelectedShippingType(prev => prev === shippingType ? '' : shippingType)
+  }
+
   return (
     <div>
                        <h1 className="text-2xl font-bold mb-2">Create PO</h1>
@@ -102,16 +107,6 @@ const WebFormPage = () => {
                    <span>Please enter the information on the PO you would like to create.</span>
                  </div>
 
-      {/* PO Information Section Header */}
-      <div className="mb-6">
-        <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 w-full max-w-2xl">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <span className="mr-2">📦</span>
-            PO Information
-          </h2>
-        </div>
-      </div>
-
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -121,9 +116,21 @@ const WebFormPage = () => {
         Back
       </button>
 
-      {/* Form Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-2xl">
-        <form className="space-y-4">
+      {/* Two Column Layout */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left Column - PO Information */}
+        <div className="w-full lg:w-1/2">
+          {/* PO Information Section Header */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+              <span className="mr-2">📦</span>
+              PO Information
+            </h2>
+          </div>
+
+          {/* PO Information Form Card */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <form className="space-y-4">
           {/* Date */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -264,7 +271,133 @@ const WebFormPage = () => {
               <p className="text-red-600 text-xs mt-1">{errors.expArrivalDate}</p>
             )}
           </div>
-        </form>
+            </form>
+          </div>
+        </div>
+
+        {/* Right Column - Shipping Details */}
+        <div className="w-full lg:w-1/2">
+          {/* Shipping Details Section Header */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+              <span className="mr-2">🚚</span>
+              Shipping Details
+            </h2>
+          </div>
+
+          {/* Shipping Details Form Card */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            {/* Step 1 Subsection */}
+            <div className="mb-6">
+              <h3 className="text-base font-semibold text-gray-900 flex items-center mb-4">
+                <span className="mr-2">📤</span>
+                Step 1 – What are you sending?
+              </h3>
+              
+              {/* Selection Boxes */}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div 
+                  onClick={() => handleShippingTypeClick('Boxes')}
+                  className={`border rounded-lg p-4 text-center transition-colors duration-200 cursor-pointer ${
+                    selectedShippingType === 'Boxes'
+                      ? 'bg-blue-100 border-blue-500'
+                      : 'bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="text-sm font-medium text-gray-700">Boxes</div>
+                </div>
+                <div 
+                  onClick={() => handleShippingTypeClick('Pallets')}
+                  className={`border rounded-lg p-4 text-center transition-colors duration-200 cursor-pointer ${
+                    selectedShippingType === 'Pallets'
+                      ? 'bg-blue-100 border-blue-500'
+                      : 'bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="text-sm font-medium text-gray-700">Pallets (LTL / FTL)</div>
+                </div>
+                <div 
+                  onClick={() => handleShippingTypeClick('Container')}
+                  className={`border rounded-lg p-4 text-center transition-colors duration-200 cursor-pointer ${
+                    selectedShippingType === 'Container'
+                      ? 'bg-blue-100 border-blue-500'
+                      : 'bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="text-sm font-medium text-gray-700">Container 20/40</div>
+                </div>
+                <div 
+                  onClick={() => handleShippingTypeClick('Other')}
+                  className={`border rounded-lg p-4 text-center transition-colors duration-200 cursor-pointer ${
+                    selectedShippingType === 'Other'
+                      ? 'bg-blue-100 border-blue-500'
+                      : 'bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="text-sm font-medium text-gray-700">Other</div>
+                </div>
+              </div>
+
+              {/* Step 2 Subsection */}
+              <div className="mt-8">
+                <h3 className="text-base font-semibold text-gray-900 flex items-center mb-4">
+                  <span className="mr-2">📊</span>
+                  Step 2 – How Many?
+                </h3>
+                
+                {/* Quantity Input */}
+                <div className="mb-4">
+                  <input
+                    type="number"
+                    disabled={!selectedShippingType}
+                    placeholder={
+                      selectedShippingType === 'Boxes' ? 'Enter Quantity of Boxes' :
+                      selectedShippingType === 'Pallets' ? 'Enter Quantity of Pallets' :
+                      selectedShippingType === 'Container' ? 'Enter Quantity of Containers' :
+                      selectedShippingType === 'Other' ? 'Enter Quantity' :
+                      'Select a shipping type above first'
+                    }
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      selectedShippingType 
+                        ? 'border-gray-300' 
+                        : 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
+                    }`}
+                    min="1"
+                    step="1"
+                  />
+                </div>
+
+                {/* Step 3 Subsection */}
+                <div className="mt-8">
+                  <h3 className="text-base font-semibold text-gray-900 flex items-center mb-4">
+                    <span className="mr-2">🚚</span>
+                    Step 3 – How are you sending?
+                  </h3>
+                  
+                  {/* Shipping Method Dropdown */}
+                  <div className="mb-4">
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Select a shipping method</option>
+                      <option value="DHLE">DHLE – DHL e-Commerce</option>
+                      <option value="FDXE">FDXE – (Fedex Express)</option>
+                      <option value="FDGX">FDGX – (Fedex Ground)</option>
+                      <option value="FDXSMARTPOST">FDXSMARTPOST – (Fedex SmartPost)</option>
+                      <option value="LTL">LTL – (Less-Than-Truckload)</option>
+                      <option value="PUROLATOR">PUROLATOR – Purolator</option>
+                      <option value="REWORK">REWORK – REWORK</option>
+                      <option value="TBR">TBR – To Be Routed</option>
+                      <option value="UPS">UPS – UPS (United Parcel Service)</option>
+                      <option value="UPSSP">UPSSP – UPS SurePost</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
