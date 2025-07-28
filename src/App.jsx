@@ -20,6 +20,7 @@ import AdHocReceiving from './pages/AdHocReceiving'
 import ManageReturns from './pages/ManageReturns'
 import POLookup from './pages/POLookup'
 import ReceivingLog from './pages/ReceivingLog'
+import ManageInventory from './pages/ManageInventory'
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/returns" element={<ManageReturns />} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/receiving/log" element={<ReceivingLog />} />
+          <Route path="/inventory/warehouse" element={<ManageInventory />} />
         </Routes>
       </Layout>
     </Router>
