@@ -19,6 +19,7 @@ import CreatePO from './pages/CreatePO'
 import AdHocReceiving from './pages/AdHocReceiving'
 import ManageReturns from './pages/ManageReturns'
 import POLookup from './pages/POLookup'
+import ReceivingLog from './pages/ReceivingLog'
 
 function App() {
   return (
@@ -38,12 +39,14 @@ function App() {
           <Route path="/receiving/manage-pos" element={<ReceivingLayout><ManagePOs /></ReceivingLayout>} />
           <Route path="/receiving/create-po" element={<ReceivingLayout><CreatePO /></ReceivingLayout>} />
           <Route path="/receiving/po-lookup" element={<ReceivingLayout><POLookup /></ReceivingLayout>} />
+          <Route path="/receiving/reports/log" element={<ReceivingLayout><ReceivingLog /></ReceivingLayout>} />
           <Route path="/create-po/web-form" element={<ReceivingLayout><WebFormPage /></ReceivingLayout>} />
           <Route path="/create-po/adhoc-receiving" element={<ReceivingLayout><AdHocReceiving /></ReceivingLayout>} />
           <Route path="/create-po/file-upload" element={<ReceivingLayout><FileUploadPage /></ReceivingLayout>} />
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/returns" element={<ManageReturns />} />
           <Route path="/item/:id" element={<ItemDetail />} />
+          <Route path="/receiving/log" element={<ReceivingLog />} />
         </Routes>
       </Layout>
     </Router>
