@@ -25,6 +25,10 @@ import InventoryBundles from './pages/InventoryBundles'
 import InventoryKits from './pages/InventoryKits'
 import InventoryByExpiration from './pages/InventoryByExpiration'
 import InventoryBySerial from './pages/InventoryBySerial'
+import StockActivity from './pages/StockActivity'
+import MoveLog from './pages/MoveLog'
+import InventoryLogValue from './pages/InventoryLogValue'
+import InventorySnap from './pages/InventorySnap'
 
 function App() {
   return (
@@ -66,6 +70,18 @@ function App() {
           <Route path="/inventory/kits" element={<InventoryKits />} />
           <Route path="/inventory/expiration" element={<InventoryByExpiration />} />
           <Route path="/inventory/serial" element={<InventoryBySerial />} />
+          
+          {/* Stock Activity Route */}
+          <Route path="/inventory/reports/stock-activity" element={<StockActivity />} />
+          
+          {/* Move Log Route */}
+          <Route path="/inventory/reports/move-log" element={<MoveLog />} />
+          
+          {/* Inventory Log - Value Route */}
+          <Route path="/inventory/reports/inventory-log-value" element={<InventoryLogValue />} />
+          
+          {/* Inventory Snap Route */}
+          <Route path="/inventory/reports/inventory-snap" element={<InventorySnap />} />
         </Routes>
       </Layout>
     </Router>

@@ -2,89 +2,95 @@ import { useState } from 'react'
 import { ArrowLeft, ChevronDown, Download, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-// Mock data for inventory by expiration
-const mockExpirationInventory = [
+// Mock data for inventory items
+const mockInventory = [
   {
-    id: 'EXP-001',
-    sku: 'EXP-001',
-    description: 'Expiring Item A',
+    id: 'INV-001',
+    sku: 'SKU-001',
+    description: 'Widget A',
     location: 'A1-B2-C3',
-    quantity: 25,
-    minQuantity: 5,
-    maxQuantity: 50,
+    quantity: 150,
+    minQuantity: 50,
+    maxQuantity: 200,
     status: 'Active',
     lastUpdate: '2024-07-28',
-    expirationDate: '2024-08-15',
-    type: 'parent'
+    type: 'bundle'
   },
   {
-    id: 'EXP-002',
-    sku: 'EXP-002',
-    description: 'Expiring Item B',
+    id: 'INV-002',
+    sku: 'SKU-002',
+    description: 'Widget B',
     location: 'A2-B3-C4',
-    quantity: 15,
-    minQuantity: 3,
-    maxQuantity: 30,
+    quantity: 75,
+    minQuantity: 25,
+    maxQuantity: 100,
     status: 'Low Stock',
     lastUpdate: '2024-07-27',
-    expirationDate: '2024-08-10',
-    type: 'parent'
+    type: 'bundle'
   },
   {
-    id: 'EXP-003',
-    sku: 'EXP-003',
-    description: 'Expiring Item C',
+    id: 'INV-003',
+    sku: 'SKU-003',
+    description: 'Widget C',
     location: 'A3-B4-C5',
     quantity: 0,
-    minQuantity: 1,
-    maxQuantity: 20,
+    minQuantity: 10,
+    maxQuantity: 50,
     status: 'Out of Stock',
     lastUpdate: '2024-07-26',
-    expirationDate: '2024-08-05',
-    type: 'child'
+    type: 'regular'
   },
   {
-    id: 'EXP-004',
-    sku: 'EXP-004',
-    description: 'Expiring Item D',
+    id: 'INV-004',
+    sku: 'SKU-004',
+    description: 'Widget D',
     location: 'A4-B5-C6',
-    quantity: 40,
-    minQuantity: 8,
-    maxQuantity: 80,
+    quantity: 300,
+    minQuantity: 100,
+    maxQuantity: 500,
     status: 'Active',
     lastUpdate: '2024-07-25',
-    expirationDate: '2024-08-20',
-    type: 'parent'
+    type: 'bundle'
   },
   {
-    id: 'EXP-005',
-    sku: 'EXP-005',
-    description: 'Expiring Item E',
+    id: 'INV-005',
+    sku: 'SKU-005',
+    description: 'Widget E',
     location: 'A5-B6-C7',
-    quantity: 12,
-    minQuantity: 2,
-    maxQuantity: 25,
+    quantity: 25,
+    minQuantity: 30,
+    maxQuantity: 75,
     status: 'Low Stock',
     lastUpdate: '2024-07-24',
-    expirationDate: '2024-08-12',
-    type: 'child'
+    type: 'bundle'
   },
   {
-    id: 'EXP-006',
-    sku: 'EXP-006',
-    description: 'Expiring Item F',
+    id: 'INV-006',
+    sku: 'SKU-006',
+    description: 'Widget F',
     location: 'A6-B7-C8',
-    quantity: 35,
-    minQuantity: 7,
-    maxQuantity: 60,
+    quantity: 180,
+    minQuantity: 50,
+    maxQuantity: 250,
     status: 'Active',
     lastUpdate: '2024-07-23',
-    expirationDate: '2024-08-25',
-    type: 'parent'
+    type: 'bundle'
+  },
+  {
+    id: 'INV-007',
+    sku: 'SKU-007',
+    description: 'Widget G',
+    location: 'A7-B8-C9',
+    quantity: 45,
+    minQuantity: 20,
+    maxQuantity: 80,
+    status: 'Low Stock',
+    lastUpdate: '2024-07-22',
+    type: 'regular'
   }
 ]
 
-const InventoryByExpiration = () => {
+const InventoryLogValue = () => {
   const navigate = useNavigate()
   
   // State for dropdown visibility
@@ -97,8 +103,7 @@ const InventoryByExpiration = () => {
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-  const [parentFilter, setParentFilter] = useState(false)
-  const [childFilter, setChildFilter] = useState(false)
+  const [bundleFilter, setBundleFilter] = useState(false)
 
   // Dropdown options
   const inventoryPipelineOptions = [
@@ -127,25 +132,21 @@ const InventoryByExpiration = () => {
     { id: 'Active', label: 'Active' },
     { id: 'Low Stock', label: 'Low Stock' },
     { id: 'Out of Stock', label: 'Out of Stock' },
-    { id: 'ALL Expiration', label: 'ALL Expiration' }
+    { id: 'Discontinued', label: 'Discontinued' },
+    { id: 'ALL Items', label: 'ALL Items' }
   ]
 
-  // Filter inventory based on active tab and parent/child filters
+  // Filter inventory based on active tab and bundle filter
   const getFilteredInventory = () => {
-    let filtered = mockExpirationInventory
+    let filtered = mockInventory
     
-    // Apply parent filter if active
-    if (parentFilter) {
-      filtered = filtered.filter(item => item.type === 'parent')
-    }
-    
-    // Apply child filter if active
-    if (childFilter) {
-      filtered = filtered.filter(item => item.type === 'child')
+    // Apply bundle filter if active
+    if (bundleFilter) {
+      filtered = filtered.filter(item => item.type === 'bundle')
     }
     
     // Apply status filter
-    if (activeTab === 'ALL Expiration') {
+    if (activeTab === 'ALL Items') {
       return filtered
     }
     return filtered.filter(item => item.status === activeTab)
@@ -153,10 +154,10 @@ const InventoryByExpiration = () => {
 
   // Get count for each tab
   const getTabCount = (tabId) => {
-    if (tabId === 'ALL Expiration') {
-      return mockExpirationInventory.length
+    if (tabId === 'ALL Items') {
+      return mockInventory.length
     }
-    return mockExpirationInventory.filter(item => item.status === tabId).length
+    return mockInventory.filter(item => item.status === tabId).length
   }
 
   // Pagination functions
@@ -191,7 +192,7 @@ const InventoryByExpiration = () => {
     const searchValue = searchTerm.trim().toLowerCase()
     
     // Search in the current dataset
-    const foundItem = mockExpirationInventory.find(item => {
+    const foundItem = mockInventory.find(item => {
       // Search by SKU
       if (item.sku.toLowerCase().includes(searchValue)) {
         return true
@@ -215,7 +216,7 @@ const InventoryByExpiration = () => {
   }
 
   const exportToCSV = () => {
-    const headers = ['Item ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update', 'Expiration Date']
+    const headers = ['Item ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update']
     const data = getFilteredInventory().map(item => [
       item.id,
       item.sku,
@@ -225,8 +226,7 @@ const InventoryByExpiration = () => {
       item.minQuantity,
       item.maxQuantity,
       item.status,
-      item.lastUpdate,
-      item.expirationDate
+      item.lastUpdate
     ])
 
     const csvContent = [
@@ -238,7 +238,7 @@ const InventoryByExpiration = () => {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', `inventory_expiration_export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `inventory_export_${new Date().toISOString().split('T')[0]}.csv`)
     link.click()
   }
 
@@ -346,8 +346,8 @@ const InventoryByExpiration = () => {
             <div className="flex flex-col">
               {/* Title and Subtitle */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Manage Inventory:</h1>
-                <p className="text-sm text-gray-600">View and manage inventory by expiration date</p>
+                <h1 className="text-2xl font-bold text-gray-900">Inventory Log - Value</h1>
+                <p className="text-sm text-gray-600">View and manage inventory log value</p>
               </div>
               
               {/* Back Button */}
@@ -363,7 +363,7 @@ const InventoryByExpiration = () => {
             {/* Right side - Inventory counter and buttons */}
             <div className="flex items-center space-x-3">
               <div className="text-sm text-gray-500">
-                Showing {getPaginatedInventory().length} of {getFilteredInventory().length} expiration items
+                Showing {getPaginatedInventory().length} of {getFilteredInventory().length} inventory items
               </div>
               <div className="flex items-center space-x-2">
                 <button 
@@ -455,34 +455,18 @@ const InventoryByExpiration = () => {
             </div>
           </div>
 
-          {/* Expiration Buttons */}
+          {/* Bundle SKUs Button */}
           <div className="border-b border-gray-200">
             <div className="flex flex-wrap gap-4 sm:gap-6 lg:gap-8">
               <button
-                onClick={() => {
-                  setParentFilter(!parentFilter)
-                  setChildFilter(false) // Turn off child filter when parent is clicked
-                }}
+                onClick={() => setBundleFilter(!bundleFilter)}
                 className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                  parentFilter 
+                  bundleFilter 
                     ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
                     : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
                 }`}
               >
-                Parent SKUs (Expiry) ({mockExpirationInventory.filter(item => item.type === 'parent').length})
-              </button>
-              <button
-                onClick={() => {
-                  setChildFilter(!childFilter)
-                  setParentFilter(false) // Turn off parent filter when child is clicked
-                }}
-                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                  childFilter 
-                    ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
-                    : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
-                }`}
-              >
-                Child SKUs (Expiry) ({mockExpirationInventory.filter(item => item.type === 'child').length})
+                Bundle SKUs ({mockInventory.filter(item => item.type === 'bundle').length})
               </button>
             </div>
           </div>
@@ -497,17 +481,11 @@ const InventoryByExpiration = () => {
                   </th>
                   <th className="px-4 py-2 text-left">DC</th>
                   <th className="px-4 py-2 text-left">Client ID</th>
-                  <th className="px-4 py-2 text-left">SKU</th>
-                  <th className="px-4 py-2 text-left">BO</th>
-                  <th className="px-4 py-2 text-left">EXP</th>
-                  <th className="px-4 py-2 text-left">DMG</th>
-                  <th className="px-4 py-2 text-left">XFR</th>
-                  <th className="px-4 py-2 text-left">In Stock</th>
-                  <th className="px-4 py-2 text-left">Committed</th>
-                  <th className="px-4 py-2 text-left">Available</th>
-                  <th className="px-4 py-2 text-left">Last Update</th>
-                  <th className="px-4 py-2 text-left">Last CC</th>
-                  <th className="px-4 py-2 text-left">Age</th>
+                  <th className="px-4 py-2 text-left">In Stock SKUs</th>
+                  <th className="px-4 py-2 text-left">Total QTY</th>
+                  <th className="px-4 py-2 text-left">Total Whs Inc</th>
+                  <th className="px-4 py-2 text-left">Insure Inventory</th>
+                  <th className="px-4 py-2 text-left">Insure Value</th>
                 </tr>
               </thead>
               <tbody className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -518,17 +496,11 @@ const InventoryByExpiration = () => {
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* DC */}
                     <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* Client ID */}
-                    <td className="px-4 py-3 text-sm text-gray-800">{item.sku}</td> {/* SKU */}
-                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* BO */}
-                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* EXP */}
-                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* DMG */}
-                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* XFR */}
-                    <td className="px-4 py-3 text-sm text-gray-800">{item.quantity}</td> {/* In Stock */}
-                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* Committed */}
-                    <td className="px-4 py-3 text-sm text-gray-800">{item.quantity}</td> {/* Available */}
-                    <td className="px-4 py-3 text-xs text-gray-800">{item.lastUpdate}</td> {/* Last Update */}
-                    <td className="px-4 py-3 text-xs text-gray-800">-</td> {/* Last CC */}
-                    <td className="px-4 py-3 text-xs text-gray-800">-</td> {/* Age */}
+                    <td className="px-4 py-3 text-sm text-gray-800">{item.sku}</td> {/* In Stock SKUs */}
+                    <td className="px-4 py-3 text-sm text-gray-800">{item.quantity}</td> {/* Total QTY */}
+                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* Total Whs Inc */}
+                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* Insure Inventory */}
+                    <td className="px-4 py-3 text-sm text-gray-800">-</td> {/* Insure Value */}
                   </tr>
                 ))}
               </tbody>
@@ -538,7 +510,7 @@ const InventoryByExpiration = () => {
           {/* Process Selected Items Button */}
           <div className="mt-3">
             <button
-              onClick={() => console.log("Process selected expiration items")}
+              onClick={() => console.log("Process selected inventory items")}
               className="bg-black text-white text-xs px-3 py-1.5 rounded hover:bg-gray-800 transition-colors duration-200"
             >
               Process Selected Items
@@ -550,4 +522,4 @@ const InventoryByExpiration = () => {
   )
 }
 
-export default InventoryByExpiration 
+export default InventoryLogValue 

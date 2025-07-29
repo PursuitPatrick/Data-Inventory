@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { ArrowLeft, Download, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Download, ChevronDown, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-const MoveLog = () => {
+const InventorySnap = () => {
   const navigate = useNavigate()
   
   // State for dropdown visibility
@@ -12,16 +12,10 @@ const MoveLog = () => {
   
   // State for filter data
   const [filterData, setFilterData] = useState({
-    clientId: 'MAGM - MAGM LLC',
-    warehouseId: '',
-    sku: '',
-    fromDate: '07-27-2025',
-    toDate: '07-27-2025'
+    warehouses: '',
+    brands: '',
+    dates: ''
   })
-
-  // State for date range shortcuts
-  const [selectedDateRange, setSelectedDateRange] = useState('')
-  const [dateError, setDateError] = useState('')
 
   // State for records per page
   const [recordsPerPage, setRecordsPerPage] = useState(25)
@@ -71,9 +65,8 @@ const MoveLog = () => {
   }
 
   const handleShowResults = () => {
-    console.log('Show Results clicked for Move Log')
+    console.log('Show Results clicked for Inventory Snap')
     console.log('Filter data:', filterData)
-    console.log('Selected date range:', selectedDateRange)
 
     // Mock functionality - simulate no records found
     const hasNoRecords = true // Mock: always show no records for demo
@@ -88,89 +81,16 @@ const MoveLog = () => {
 
   const handleClearSearch = () => {
     setFilterData({
-      clientId: 'MAGM - MAGM LLC',
-      warehouseId: '',
-      sku: '',
-      fromDate: '07-27-2025',
-      toDate: '07-27-2025'
+      warehouses: '',
+      brands: '',
+      dates: ''
     })
-    setSelectedDateRange('')
-    setDateError('')
     setCurrentPage(1)
     setRecordsPerPage(25)
   }
 
   const handleExport = () => {
-    alert('Export functionality for Move Log would generate a CSV file.')
-  }
-
-  const dateRangeOptions = [
-    { id: 'today', label: 'Today' },
-    { id: 'yesterday', label: 'Yesterday' },
-    { id: 'thisWeek', label: 'This Week' },
-    { id: 'lastWeek', label: 'Last Week' },
-    { id: 'thisMonth', label: 'This Month' },
-    { id: 'lastMonth', label: 'Last Month' },
-    { id: 'custom', label: 'Custom Dates' }
-  ]
-
-  const calculateDateRange = (rangeType) => {
-    const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
-
-    switch (rangeType) {
-      case 'today':
-        return { from: todayStr, to: todayStr }
-      case 'yesterday':
-        const yesterday = new Date(today)
-        yesterday.setDate(yesterday.getDate() - 1)
-        const yesterdayStr = yesterday.toISOString().split('T')[0]
-        return { from: yesterdayStr, to: yesterdayStr }
-      case 'thisWeek':
-        const firstDayThisWeek = new Date(today.setDate(today.getDate() - today.getDay()))
-        return { from: firstDayThisWeek.toISOString().split('T')[0], to: todayStr }
-      case 'lastWeek':
-        const lastWeekEnd = new Date(today.setDate(today.getDate() - today.getDay() - 1))
-        const lastWeekStart = new Date(lastWeekEnd.setDate(lastWeekEnd.getDate() - 6))
-        return { from: lastWeekStart.toISOString().split('T')[0], to: lastWeekEnd.toISOString().split('T')[0] }
-      case 'thisMonth':
-        const firstDayThisMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-        return { from: firstDayThisMonth.toISOString().split('T')[0], to: todayStr }
-      case 'lastMonth':
-        const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-        const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0)
-        return { from: firstDayLastMonth.toISOString().split('T')[0], to: lastDayLastMonth.toISOString().split('T')[0] }
-      default:
-        return { from: '', to: '' }
-    }
-  }
-
-  const validateDateRange = (fromDate, toDate) => {
-    const from = new Date(fromDate)
-    const to = new Date(toDate)
-    const today = new Date()
-    const maxDate = new Date(today)
-    maxDate.setDate(today.getDate() - 180) // 180 days ago
-
-    if (from > to) {
-      return 'From Date cannot be after To Date.'
-    }
-    if (from < maxDate) {
-      return 'Search date range limited to Today – 180 Days.'
-    }
-    return ''
-  }
-
-  const handleDateRangeClick = (rangeId) => {
-    setSelectedDateRange(rangeId)
-    if (rangeId === 'custom') {
-      setFilterData(prev => ({ ...prev, fromDate: '', toDate: '' }))
-      setDateError('')
-    } else {
-      const { from, to } = calculateDateRange(rangeId)
-      setFilterData(prev => ({ ...prev, fromDate: from, toDate: to }))
-      setDateError(validateDateRange(from, to))
-    }
+    alert('Export functionality for Inventory Snap would generate a CSV file.')
   }
 
   return (
@@ -275,8 +195,8 @@ const MoveLog = () => {
           <div className="flex flex-col">
             {/* Title and Subtitle */}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Move Log</h1>
-              <p className="text-sm text-gray-600">View and manage move activity logs</p>
+              <h1 className="text-2xl font-bold text-gray-900">Inventory Snap</h1>
+              <p className="text-sm text-gray-600">View and manage inventory snapshots</p>
             </div>
             
             {/* Back Button */}
@@ -330,103 +250,58 @@ const MoveLog = () => {
 
         {/* Filter Section */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Move Log Filters</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Inventory Snap</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {/* Client ID */}
+            {/* Warehouses */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Client ID</label>
-              <select
-                value={filterData.clientId}
-                onChange={(e) => handleFilterChange('clientId', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="MAGM - MAGM LLC">MAGM - MAGM LLC</option>
-                <option value="CLI-001 - WestCo Distribution">CLI-001 - WestCo Distribution</option>
-                <option value="CLI-002 - Metro Supplies">CLI-002 - Metro Supplies</option>
-              </select>
-            </div>
-
-            {/* Warehouse ID */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Warehouse ID</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Warehouses</label>
               <input
                 type="text"
-                value={filterData.warehouseId}
-                onChange={(e) => handleFilterChange('warehouseId', e.target.value)}
-                placeholder="Enter Warehouse ID"
+                value={filterData.warehouses}
+                onChange={(e) => handleFilterChange('warehouses', e.target.value)}
+                placeholder="Enter warehouses"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
-            {/* SKU */}
+            {/* Brands */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">SKU</label>
-              <select
-                value={filterData.sku}
-                onChange={(e) => handleFilterChange('sku', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select SKU</option>
-                <option value="BREAK X1">BREAK X1</option>
-                <option value="BREAK X2">BREAK X2</option>
-                <option value="MAGM">MAGM</option>
-                <option value="SHELL S1">SHELL S1</option>
-                <option value="SHELL S2">SHELL S2</option>
-              </select>
-            </div>
-
-            {/* From Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">From</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Brands</label>
               <input
-                type="date"
-                value={filterData.fromDate}
-                onChange={(e) => handleFilterChange('fromDate', e.target.value)}
+                type="text"
+                value={filterData.brands}
+                onChange={(e) => handleFilterChange('brands', e.target.value)}
+                placeholder="Enter brands"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
-            {/* To Date */}
+            {/* Dates */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
-              <input
-                type="date"
-                value={filterData.toDate}
-                onChange={(e) => handleFilterChange('toDate', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Dates</label>
+              <div className="relative">
+                <input
+                  type="date"
+                  value={filterData.dates}
+                  onChange={(e) => handleFilterChange('dates', e.target.value)}
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Date Range Shortcuts */}
-        <div className="mt-6">
-          <div className="flex flex-wrap gap-2">
-            {dateRangeOptions.map(option => (
+            {/* Export Inventory Snap Button */}
+            <div className="flex items-end">
               <button
-                key={option.id}
-                onClick={() => handleDateRangeClick(option.id)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  selectedDateRange === option.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                onClick={handleExport}
+                className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
               >
-                {option.label}
+                <Download className="w-4 h-4 mr-2" />
+                Export Inventory Snap
               </button>
-            ))}
+            </div>
           </div>
-          
-          {/* Date Range Warning */}
-          <p className="mt-3 text-sm text-red-600">
-            🔴 <strong>Search date range limited to Today – 180 Days</strong>
-          </p>
-          
-          {/* Date Range Error */}
-          {dateError && (
-            <p className="mt-2 text-sm text-red-600">{dateError}</p>
-          )}
         </div>
 
         {/* Show Results and Clear Search Buttons */}
@@ -445,14 +320,6 @@ const MoveLog = () => {
           >
             Clear Search
           </button>
-        </div>
-
-        {/* SKU Placeholder Box */}
-        <div className="mt-4 p-4 bg-gray-100 rounded-md border border-gray-200">
-          <div className="text-gray-700">
-            <span className="font-medium">SKU:</span>
-            <span className="ml-2 text-gray-600 italic">In the future the SKU number will be added here after the search.</span>
-          </div>
         </div>
 
         {/* Results Header Row */}
@@ -500,7 +367,7 @@ const MoveLog = () => {
         {/* Content Placeholder */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="text-center text-gray-500">
-            <p className="text-lg font-medium mb-2">Move Log Results</p>
+            <p className="text-lg font-medium mb-2">Inventory Snap Results</p>
             <p className="text-sm">Filtered results will be displayed here.</p>
           </div>
         </div>
@@ -524,4 +391,4 @@ const MoveLog = () => {
   )
 }
 
-export default MoveLog 
+export default InventorySnap 

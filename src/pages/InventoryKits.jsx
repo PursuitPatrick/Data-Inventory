@@ -327,7 +327,7 @@ const InventoryKits = () => {
             <div className="flex flex-col">
               {/* Title and Subtitle */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Inventory Kits</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Manage Inventory:</h1>
                 <p className="text-sm text-gray-600">View and manage inventory kits</p>
               </div>
               
