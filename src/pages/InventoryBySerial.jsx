@@ -2,66 +2,114 @@ import { useState } from 'react'
 import { ArrowLeft, ChevronDown, Download, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-// Mock data for inventory items
-const mockInventory = [
+// Mock data for inventory by serial number
+const mockSerialInventory = [
   {
-    id: 'INV-001',
-    sku: 'SKU-001',
-    description: 'Widget A',
+    id: 'SER-001',
+    sku: 'SER-001',
+    description: 'Serial Item A',
     location: 'A1-B2-C3',
-    quantity: 150,
-    minQuantity: 50,
-    maxQuantity: 200,
+    quantity: 20,
+    minQuantity: 3,
+    maxQuantity: 40,
     status: 'Active',
-    lastUpdate: '2024-07-28'
+    lastUpdate: '2024-07-28',
+    serialNumber: 'SN001234567',
+    type: 'parent'
   },
   {
-    id: 'INV-002',
-    sku: 'SKU-002',
-    description: 'Widget B',
+    id: 'SER-002',
+    sku: 'SER-002',
+    description: 'Serial Item B',
     location: 'A2-B3-C4',
-    quantity: 75,
-    minQuantity: 25,
-    maxQuantity: 100,
+    quantity: 12,
+    minQuantity: 2,
+    maxQuantity: 25,
     status: 'Low Stock',
-    lastUpdate: '2024-07-27'
+    lastUpdate: '2024-07-27',
+    serialNumber: 'SN002345678',
+    type: 'parent'
   },
   {
-    id: 'INV-003',
-    sku: 'SKU-003',
-    description: 'Widget C',
+    id: 'SER-003',
+    sku: 'SER-003',
+    description: 'Serial Item C',
     location: 'A3-B4-C5',
     quantity: 0,
-    minQuantity: 10,
-    maxQuantity: 50,
+    minQuantity: 1,
+    maxQuantity: 15,
     status: 'Out of Stock',
-    lastUpdate: '2024-07-26'
+    lastUpdate: '2024-07-26',
+    serialNumber: 'SN003456789',
+    type: 'child'
   },
   {
-    id: 'INV-004',
-    sku: 'SKU-004',
-    description: 'Widget D',
+    id: 'SER-004',
+    sku: 'SER-004',
+    description: 'Serial Item D',
     location: 'A4-B5-C6',
-    quantity: 300,
-    minQuantity: 100,
-    maxQuantity: 500,
+    quantity: 35,
+    minQuantity: 6,
+    maxQuantity: 70,
     status: 'Active',
-    lastUpdate: '2024-07-25'
+    lastUpdate: '2024-07-25',
+    serialNumber: 'SN004567890',
+    type: 'parent'
   },
   {
-    id: 'INV-005',
-    sku: 'SKU-005',
-    description: 'Widget E',
+    id: 'SER-005',
+    sku: 'SER-005',
+    description: 'Serial Item E',
     location: 'A5-B6-C7',
-    quantity: 25,
-    minQuantity: 30,
-    maxQuantity: 75,
+    quantity: 8,
+    minQuantity: 1,
+    maxQuantity: 20,
     status: 'Low Stock',
-    lastUpdate: '2024-07-24'
+    lastUpdate: '2024-07-24',
+    serialNumber: 'SN005678901',
+    type: 'child'
+  },
+  {
+    id: 'SER-006',
+    sku: 'SER-006',
+    description: 'Serial Item F',
+    location: 'A6-B7-C8',
+    quantity: 28,
+    minQuantity: 5,
+    maxQuantity: 50,
+    status: 'Active',
+    lastUpdate: '2024-07-23',
+    serialNumber: 'SN006789012',
+    type: 'parent'
+  },
+  {
+    id: 'SER-007',
+    sku: 'SER-007',
+    description: 'Serial Item G',
+    location: 'A7-B8-C9',
+    quantity: 15,
+    minQuantity: 2,
+    maxQuantity: 30,
+    status: 'Active',
+    lastUpdate: '2024-07-22',
+    serialNumber: 'SN007890123',
+    type: 'parent'
+  },
+  {
+    id: 'SER-008',
+    sku: 'SER-008',
+    description: 'Serial Item H',
+    location: 'A8-B9-C10',
+    quantity: 22,
+    minQuantity: 4,
+    maxQuantity: 45,
+    status: 'Active',
+    lastUpdate: '2024-07-21',
+    serialNumber: 'SN008901234'
   }
 ]
 
-const ManageInventory = () => {
+const InventoryBySerial = () => {
   const navigate = useNavigate()
   
   // State for dropdown visibility
@@ -74,6 +122,8 @@ const ManageInventory = () => {
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [parentFilter, setParentFilter] = useState(false)
+  const [childFilter, setChildFilter] = useState(false)
 
   // Dropdown options
   const inventoryPipelineOptions = [
@@ -102,24 +152,36 @@ const ManageInventory = () => {
     { id: 'Active', label: 'Active' },
     { id: 'Low Stock', label: 'Low Stock' },
     { id: 'Out of Stock', label: 'Out of Stock' },
-    { id: 'Discontinued', label: 'Discontinued' },
-    { id: 'ALL Items', label: 'ALL Items' }
+    { id: 'ALL Serial', label: 'ALL Serial' }
   ]
 
-  // Filter inventory based on active tab
+  // Filter inventory based on active tab and parent/child filters
   const getFilteredInventory = () => {
-    if (activeTab === 'ALL Items') {
-      return mockInventory
+    let filtered = mockSerialInventory
+    
+    // Apply parent filter if active
+    if (parentFilter) {
+      filtered = filtered.filter(item => item.type === 'parent')
     }
-    return mockInventory.filter(item => item.status === activeTab)
+    
+    // Apply child filter if active
+    if (childFilter) {
+      filtered = filtered.filter(item => item.type === 'child')
+    }
+    
+    // Apply status filter
+    if (activeTab === 'ALL Serial') {
+      return filtered
+    }
+    return filtered.filter(item => item.status === activeTab)
   }
 
   // Get count for each tab
   const getTabCount = (tabId) => {
-    if (tabId === 'ALL Items') {
-      return mockInventory.length
+    if (tabId === 'ALL Serial') {
+      return mockSerialInventory.length
     }
-    return mockInventory.filter(item => item.status === tabId).length
+    return mockSerialInventory.filter(item => item.status === tabId).length
   }
 
   // Pagination functions
@@ -154,7 +216,7 @@ const ManageInventory = () => {
     const searchValue = searchTerm.trim().toLowerCase()
     
     // Search in the current dataset
-    const foundItem = mockInventory.find(item => {
+    const foundItem = mockSerialInventory.find(item => {
       // Search by SKU
       if (item.sku.toLowerCase().includes(searchValue)) {
         return true
@@ -167,19 +229,22 @@ const ManageInventory = () => {
       if (item.location.toLowerCase().includes(searchValue)) {
         return true
       }
+      // Search by Serial Number
+      if (item.serialNumber.toLowerCase().includes(searchValue)) {
+        return true
+      }
       return false
     })
 
     if (foundItem) {
       console.log('Found item:', foundItem)
-      // navigate(`/inventory/details/${foundItem.id}`) // Placeholder route
     } else {
-      alert('No inventory item found matching your search criteria.')
+      alert('No item found matching your search criteria.')
     }
   }
 
   const exportToCSV = () => {
-    const headers = ['ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update']
+    const headers = ['Item ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update', 'Serial Number']
     const data = getFilteredInventory().map(item => [
       item.id,
       item.sku,
@@ -189,7 +254,8 @@ const ManageInventory = () => {
       item.minQuantity,
       item.maxQuantity,
       item.status,
-      item.lastUpdate
+      item.lastUpdate,
+      item.serialNumber
     ])
 
     const csvContent = [
@@ -201,7 +267,7 @@ const ManageInventory = () => {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', `inventory_export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `inventory_serial_export_${new Date().toISOString().split('T')[0]}.csv`)
     link.click()
   }
 
@@ -309,8 +375,8 @@ const ManageInventory = () => {
             <div className="flex flex-col">
               {/* Title and Subtitle */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Manage Inventory</h1>
-                <p className="text-sm text-gray-600">View and manage warehouse inventory</p>
+                <h1 className="text-2xl font-bold text-gray-900">Inventory By Serial #</h1>
+                <p className="text-sm text-gray-600">View and manage inventory by serial number</p>
               </div>
               
               {/* Back Button */}
@@ -326,7 +392,7 @@ const ManageInventory = () => {
             {/* Right side - Inventory counter and buttons */}
             <div className="flex items-center space-x-3">
               <div className="text-sm text-gray-500">
-                Showing {getPaginatedInventory().length} of {getFilteredInventory().length} inventory items
+                Showing {getPaginatedInventory().length} of {getFilteredInventory().length} serial items
               </div>
               <div className="flex items-center space-x-2">
                 <button 
@@ -405,7 +471,7 @@ const ManageInventory = () => {
                       handleSearch()
                     }
                   }}
-                  placeholder="Search by SKU, Description, or Location"
+                  placeholder="Search by SKU, Description, Location, or Serial #"
                   className="text-xs px-2 py-1 border border-gray-300 rounded w-32 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
@@ -418,25 +484,35 @@ const ManageInventory = () => {
             </div>
           </div>
 
-          {/* Tabs */}
+          {/* Serial Buttons */}
           <div className="border-b border-gray-200">
             <div className="flex flex-wrap gap-4 sm:gap-6 lg:gap-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id)
-                    setCurrentPage(1) // Reset to first page when switching tabs
-                  }}
-                  className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
-                      : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
-                  }`}
-                >
-                  {tab.label} ({getTabCount(tab.id)})
-                </button>
-              ))}
+              <button
+                onClick={() => {
+                  setParentFilter(!parentFilter)
+                  setChildFilter(false) // Turn off child filter when parent is clicked
+                }}
+                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  parentFilter 
+                    ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
+                    : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
+                }`}
+              >
+                Parent SKUs (Serial #) ({mockSerialInventory.filter(item => item.type === 'parent').length})
+              </button>
+              <button
+                onClick={() => {
+                  setChildFilter(!childFilter)
+                  setParentFilter(false) // Turn off parent filter when child is clicked
+                }}
+                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  childFilter 
+                    ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
+                    : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
+                }`}
+              >
+                Child SKUs (Serial #) ({mockSerialInventory.filter(item => item.type === 'child').length})
+              </button>
             </div>
           </div>
 
@@ -491,7 +567,7 @@ const ManageInventory = () => {
           {/* Process Selected Items Button */}
           <div className="mt-3">
             <button
-              onClick={() => console.log("Process selected inventory items")}
+              onClick={() => console.log("Process selected serial items")}
               className="bg-black text-white text-xs px-3 py-1.5 rounded hover:bg-gray-800 transition-colors duration-200"
             >
               Process Selected Items
@@ -503,4 +579,4 @@ const ManageInventory = () => {
   )
 }
 
-export default ManageInventory 
+export default InventoryBySerial 

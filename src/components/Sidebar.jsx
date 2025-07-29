@@ -12,7 +12,7 @@ const navigation = [
     dropdownItems: [
       { name: 'Products', href: '/inventory/products' },
       { name: 'Receiving', href: '/receiving/manage-pos' },
-      { name: 'Warehouse', href: '/inventory/warehouse' }
+      { name: 'Warehouse', href: '/inventory/warehouse/manage-inventory' }
     ]
   },
   { name: 'Rework', href: '/rework', icon: RotateCcw, hasDropdown: false },

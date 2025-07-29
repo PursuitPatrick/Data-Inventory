@@ -13,7 +13,8 @@ const mockInventory = [
     minQuantity: 50,
     maxQuantity: 200,
     status: 'Active',
-    lastUpdate: '2024-07-28'
+    lastUpdate: '2024-07-28',
+    type: 'bundle'
   },
   {
     id: 'INV-002',
@@ -24,7 +25,8 @@ const mockInventory = [
     minQuantity: 25,
     maxQuantity: 100,
     status: 'Low Stock',
-    lastUpdate: '2024-07-27'
+    lastUpdate: '2024-07-27',
+    type: 'bundle'
   },
   {
     id: 'INV-003',
@@ -35,7 +37,8 @@ const mockInventory = [
     minQuantity: 10,
     maxQuantity: 50,
     status: 'Out of Stock',
-    lastUpdate: '2024-07-26'
+    lastUpdate: '2024-07-26',
+    type: 'regular'
   },
   {
     id: 'INV-004',
@@ -46,7 +49,8 @@ const mockInventory = [
     minQuantity: 100,
     maxQuantity: 500,
     status: 'Active',
-    lastUpdate: '2024-07-25'
+    lastUpdate: '2024-07-25',
+    type: 'bundle'
   },
   {
     id: 'INV-005',
@@ -57,11 +61,36 @@ const mockInventory = [
     minQuantity: 30,
     maxQuantity: 75,
     status: 'Low Stock',
-    lastUpdate: '2024-07-24'
+    lastUpdate: '2024-07-24',
+    type: 'bundle'
+  },
+  {
+    id: 'INV-006',
+    sku: 'SKU-006',
+    description: 'Widget F',
+    location: 'A6-B7-C8',
+    quantity: 180,
+    minQuantity: 50,
+    maxQuantity: 250,
+    status: 'Active',
+    lastUpdate: '2024-07-23',
+    type: 'bundle'
+  },
+  {
+    id: 'INV-007',
+    sku: 'SKU-007',
+    description: 'Widget G',
+    location: 'A7-B8-C9',
+    quantity: 45,
+    minQuantity: 20,
+    maxQuantity: 80,
+    status: 'Low Stock',
+    lastUpdate: '2024-07-22',
+    type: 'regular'
   }
 ]
 
-const ManageInventory = () => {
+const InventoryBundles = () => {
   const navigate = useNavigate()
   
   // State for dropdown visibility
@@ -74,6 +103,7 @@ const ManageInventory = () => {
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [bundleFilter, setBundleFilter] = useState(false)
 
   // Dropdown options
   const inventoryPipelineOptions = [
@@ -106,12 +136,20 @@ const ManageInventory = () => {
     { id: 'ALL Items', label: 'ALL Items' }
   ]
 
-  // Filter inventory based on active tab
+  // Filter inventory based on active tab and bundle filter
   const getFilteredInventory = () => {
-    if (activeTab === 'ALL Items') {
-      return mockInventory
+    let filtered = mockInventory
+    
+    // Apply bundle filter if active
+    if (bundleFilter) {
+      filtered = filtered.filter(item => item.type === 'bundle')
     }
-    return mockInventory.filter(item => item.status === activeTab)
+    
+    // Apply status filter
+    if (activeTab === 'ALL Items') {
+      return filtered
+    }
+    return filtered.filter(item => item.status === activeTab)
   }
 
   // Get count for each tab
@@ -172,14 +210,13 @@ const ManageInventory = () => {
 
     if (foundItem) {
       console.log('Found item:', foundItem)
-      // navigate(`/inventory/details/${foundItem.id}`) // Placeholder route
     } else {
-      alert('No inventory item found matching your search criteria.')
+      alert('No item found matching your search criteria.')
     }
   }
 
   const exportToCSV = () => {
-    const headers = ['ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update']
+    const headers = ['Item ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update']
     const data = getFilteredInventory().map(item => [
       item.id,
       item.sku,
@@ -309,8 +346,8 @@ const ManageInventory = () => {
             <div className="flex flex-col">
               {/* Title and Subtitle */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Manage Inventory</h1>
-                <p className="text-sm text-gray-600">View and manage warehouse inventory</p>
+                <h1 className="text-2xl font-bold text-gray-900">Inventory Bundles</h1>
+                <p className="text-sm text-gray-600">View and manage inventory bundles</p>
               </div>
               
               {/* Back Button */}
@@ -418,25 +455,19 @@ const ManageInventory = () => {
             </div>
           </div>
 
-          {/* Tabs */}
+          {/* Bundle SKUs Button */}
           <div className="border-b border-gray-200">
             <div className="flex flex-wrap gap-4 sm:gap-6 lg:gap-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id)
-                    setCurrentPage(1) // Reset to first page when switching tabs
-                  }}
-                  className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
-                      : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
-                  }`}
-                >
-                  {tab.label} ({getTabCount(tab.id)})
-                </button>
-              ))}
+              <button
+                onClick={() => setBundleFilter(!bundleFilter)}
+                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  bundleFilter 
+                    ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
+                    : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
+                }`}
+              >
+                Bundle SKUs ({mockInventory.filter(item => item.type === 'bundle').length})
+              </button>
             </div>
           </div>
 
@@ -503,4 +534,4 @@ const ManageInventory = () => {
   )
 }
 
-export default ManageInventory 
+export default InventoryBundles 

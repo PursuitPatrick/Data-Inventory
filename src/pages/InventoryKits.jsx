@@ -2,66 +2,77 @@ import { useState } from 'react'
 import { ArrowLeft, ChevronDown, Download, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-// Mock data for inventory items
-const mockInventory = [
+// Mock data for inventory kits
+const mockKits = [
   {
-    id: 'INV-001',
-    sku: 'SKU-001',
-    description: 'Widget A',
+    id: 'KIT-001',
+    sku: 'KIT-001',
+    description: 'Kit A',
     location: 'A1-B2-C3',
-    quantity: 150,
-    minQuantity: 50,
-    maxQuantity: 200,
+    quantity: 30,
+    minQuantity: 5,
+    maxQuantity: 75,
     status: 'Active',
     lastUpdate: '2024-07-28'
   },
   {
-    id: 'INV-002',
-    sku: 'SKU-002',
-    description: 'Widget B',
+    id: 'KIT-002',
+    sku: 'KIT-002',
+    description: 'Kit B',
     location: 'A2-B3-C4',
-    quantity: 75,
-    minQuantity: 25,
-    maxQuantity: 100,
+    quantity: 15,
+    minQuantity: 3,
+    maxQuantity: 40,
     status: 'Low Stock',
     lastUpdate: '2024-07-27'
   },
   {
-    id: 'INV-003',
-    sku: 'SKU-003',
-    description: 'Widget C',
+    id: 'KIT-003',
+    sku: 'KIT-003',
+    description: 'Kit C',
     location: 'A3-B4-C5',
     quantity: 0,
-    minQuantity: 10,
-    maxQuantity: 50,
+    minQuantity: 1,
+    maxQuantity: 20,
     status: 'Out of Stock',
     lastUpdate: '2024-07-26'
   },
   {
-    id: 'INV-004',
-    sku: 'SKU-004',
-    description: 'Widget D',
+    id: 'KIT-004',
+    sku: 'KIT-004',
+    description: 'Kit D',
     location: 'A4-B5-C6',
-    quantity: 300,
-    minQuantity: 100,
-    maxQuantity: 500,
+    quantity: 60,
+    minQuantity: 10,
+    maxQuantity: 100,
     status: 'Active',
     lastUpdate: '2024-07-25'
   },
   {
-    id: 'INV-005',
-    sku: 'SKU-005',
-    description: 'Widget E',
+    id: 'KIT-005',
+    sku: 'KIT-005',
+    description: 'Kit E',
     location: 'A5-B6-C7',
-    quantity: 25,
-    minQuantity: 30,
-    maxQuantity: 75,
+    quantity: 8,
+    minQuantity: 2,
+    maxQuantity: 25,
     status: 'Low Stock',
     lastUpdate: '2024-07-24'
+  },
+  {
+    id: 'KIT-006',
+    sku: 'KIT-006',
+    description: 'Kit F',
+    location: 'A6-B7-C8',
+    quantity: 45,
+    minQuantity: 8,
+    maxQuantity: 80,
+    status: 'Active',
+    lastUpdate: '2024-07-23'
   }
 ]
 
-const ManageInventory = () => {
+const InventoryKits = () => {
   const navigate = useNavigate()
   
   // State for dropdown visibility
@@ -74,6 +85,7 @@ const ManageInventory = () => {
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [kitFilter, setKitFilter] = useState(false)
 
   // Dropdown options
   const inventoryPipelineOptions = [
@@ -102,24 +114,31 @@ const ManageInventory = () => {
     { id: 'Active', label: 'Active' },
     { id: 'Low Stock', label: 'Low Stock' },
     { id: 'Out of Stock', label: 'Out of Stock' },
-    { id: 'Discontinued', label: 'Discontinued' },
-    { id: 'ALL Items', label: 'ALL Items' }
+    { id: 'ALL Kits', label: 'ALL Kits' }
   ]
 
-  // Filter inventory based on active tab
+  // Filter inventory based on active tab and kit filter
   const getFilteredInventory = () => {
-    if (activeTab === 'ALL Items') {
-      return mockInventory
+    let filtered = mockKits
+    
+    // Apply kit filter if active
+    if (kitFilter) {
+      filtered = filtered.filter(item => item.sku.startsWith('KIT-'))
     }
-    return mockInventory.filter(item => item.status === activeTab)
+    
+    // Apply status filter
+    if (activeTab === 'ALL Kits') {
+      return filtered
+    }
+    return filtered.filter(item => item.status === activeTab)
   }
 
   // Get count for each tab
   const getTabCount = (tabId) => {
-    if (tabId === 'ALL Items') {
-      return mockInventory.length
+    if (tabId === 'ALL Kits') {
+      return mockKits.length
     }
-    return mockInventory.filter(item => item.status === tabId).length
+    return mockKits.filter(item => item.status === tabId).length
   }
 
   // Pagination functions
@@ -154,42 +173,41 @@ const ManageInventory = () => {
     const searchValue = searchTerm.trim().toLowerCase()
     
     // Search in the current dataset
-    const foundItem = mockInventory.find(item => {
+    const foundKit = mockKits.find(kit => {
       // Search by SKU
-      if (item.sku.toLowerCase().includes(searchValue)) {
+      if (kit.sku.toLowerCase().includes(searchValue)) {
         return true
       }
       // Search by Description
-      if (item.description.toLowerCase().includes(searchValue)) {
+      if (kit.description.toLowerCase().includes(searchValue)) {
         return true
       }
       // Search by Location
-      if (item.location.toLowerCase().includes(searchValue)) {
+      if (kit.location.toLowerCase().includes(searchValue)) {
         return true
       }
       return false
     })
 
-    if (foundItem) {
-      console.log('Found item:', foundItem)
-      // navigate(`/inventory/details/${foundItem.id}`) // Placeholder route
+    if (foundKit) {
+      console.log('Found kit:', foundKit)
     } else {
-      alert('No inventory item found matching your search criteria.')
+      alert('No kit found matching your search criteria.')
     }
   }
 
   const exportToCSV = () => {
-    const headers = ['ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update']
-    const data = getFilteredInventory().map(item => [
-      item.id,
-      item.sku,
-      item.description,
-      item.location,
-      item.quantity,
-      item.minQuantity,
-      item.maxQuantity,
-      item.status,
-      item.lastUpdate
+    const headers = ['Kit ID', 'SKU', 'Description', 'Location', 'Quantity', 'Min Quantity', 'Max Quantity', 'Status', 'Last Update']
+    const data = getFilteredInventory().map(kit => [
+      kit.id,
+      kit.sku,
+      kit.description,
+      kit.location,
+      kit.quantity,
+      kit.minQuantity,
+      kit.maxQuantity,
+      kit.status,
+      kit.lastUpdate
     ])
 
     const csvContent = [
@@ -201,7 +219,7 @@ const ManageInventory = () => {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', `inventory_export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `inventory_kits_export_${new Date().toISOString().split('T')[0]}.csv`)
     link.click()
   }
 
@@ -309,8 +327,8 @@ const ManageInventory = () => {
             <div className="flex flex-col">
               {/* Title and Subtitle */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Manage Inventory</h1>
-                <p className="text-sm text-gray-600">View and manage warehouse inventory</p>
+                <h1 className="text-2xl font-bold text-gray-900">Inventory Kits</h1>
+                <p className="text-sm text-gray-600">View and manage inventory kits</p>
               </div>
               
               {/* Back Button */}
@@ -326,7 +344,7 @@ const ManageInventory = () => {
             {/* Right side - Inventory counter and buttons */}
             <div className="flex items-center space-x-3">
               <div className="text-sm text-gray-500">
-                Showing {getPaginatedInventory().length} of {getFilteredInventory().length} inventory items
+                Showing {getPaginatedInventory().length} of {getFilteredInventory().length} inventory kits
               </div>
               <div className="flex items-center space-x-2">
                 <button 
@@ -418,25 +436,19 @@ const ManageInventory = () => {
             </div>
           </div>
 
-          {/* Tabs */}
+          {/* Kit SKUs Button */}
           <div className="border-b border-gray-200">
             <div className="flex flex-wrap gap-4 sm:gap-6 lg:gap-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id)
-                    setCurrentPage(1) // Reset to first page when switching tabs
-                  }}
-                  className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
-                      : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
-                  }`}
-                >
-                  {tab.label} ({getTabCount(tab.id)})
-                </button>
-              ))}
+              <button
+                onClick={() => setKitFilter(!kitFilter)}
+                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  kitFilter 
+                    ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
+                    : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
+                }`}
+              >
+                Kit SKUs ({mockKits.length})
+              </button>
             </div>
           </div>
 
@@ -491,7 +503,7 @@ const ManageInventory = () => {
           {/* Process Selected Items Button */}
           <div className="mt-3">
             <button
-              onClick={() => console.log("Process selected inventory items")}
+              onClick={() => console.log("Process selected inventory kits")}
               className="bg-black text-white text-xs px-3 py-1.5 rounded hover:bg-gray-800 transition-colors duration-200"
             >
               Process Selected Items
@@ -503,4 +515,4 @@ const ManageInventory = () => {
   )
 }
 
-export default ManageInventory 
+export default InventoryKits 

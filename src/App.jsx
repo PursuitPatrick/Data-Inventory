@@ -21,6 +21,10 @@ import ManageReturns from './pages/ManageReturns'
 import POLookup from './pages/POLookup'
 import ReceivingLog from './pages/ReceivingLog'
 import ManageInventory from './pages/ManageInventory'
+import InventoryBundles from './pages/InventoryBundles'
+import InventoryKits from './pages/InventoryKits'
+import InventoryByExpiration from './pages/InventoryByExpiration'
+import InventoryBySerial from './pages/InventoryBySerial'
 
 function App() {
   return (
@@ -48,7 +52,20 @@ function App() {
           <Route path="/returns" element={<ManageReturns />} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/receiving/log" element={<ReceivingLog />} />
+          
+          {/* Inventory Warehouse Routes - Each with distinct paths */}
+          <Route path="/inventory/warehouse/manage-inventory" element={<ManageInventory />} />
+          <Route path="/inventory/warehouse/inventory-bundles" element={<InventoryBundles />} />
+          <Route path="/inventory/warehouse/inventory-kits" element={<InventoryKits />} />
+          <Route path="/inventory/warehouse/inventory-by-expiration" element={<InventoryByExpiration />} />
+          <Route path="/inventory/warehouse/inventory-by-serial" element={<InventoryBySerial />} />
+          
+          {/* Legacy routes for backward compatibility */}
           <Route path="/inventory/warehouse" element={<ManageInventory />} />
+          <Route path="/inventory/bundles" element={<InventoryBundles />} />
+          <Route path="/inventory/kits" element={<InventoryKits />} />
+          <Route path="/inventory/expiration" element={<InventoryByExpiration />} />
+          <Route path="/inventory/serial" element={<InventoryBySerial />} />
         </Routes>
       </Layout>
     </Router>
