@@ -33,6 +33,9 @@ import ManageRework from './pages/ManageRework'
 import CreateWorkOrders from './pages/CreateWorkOrders'
 import ManageKits from './pages/ManageKits'
 import ManageOrders from './pages/ManageOrders'
+import CreateOrder from './pages/CreateOrder'
+import OrderWebFormPage from './pages/OrderWebFormPage'
+import OrderFileUploadPage from './pages/OrderFileUploadPage'
 
 function App() {
   return (
@@ -94,6 +97,9 @@ function App() {
           
           {/* Orders Route */}
           <Route path="/orders" element={<ManageOrders />} />
+          <Route path="/orders/create" element={<CreateOrder />} />
+          <Route path="/create-order/web-form" element={<OrderWebFormPage />} />
+          <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
         </Routes>
       </Layout>
     </Router>
