@@ -29,6 +29,8 @@ import StockActivity from './pages/StockActivity'
 import MoveLog from './pages/MoveLog'
 import InventoryLogValue from './pages/InventoryLogValue'
 import InventorySnap from './pages/InventorySnap'
+import ManageRework from './pages/ManageRework'
+import CreateWorkOrders from './pages/CreateWorkOrders'
 
 function App() {
   return (
@@ -82,6 +84,10 @@ function App() {
           
           {/* Inventory Snap Route */}
           <Route path="/inventory/reports/inventory-snap" element={<InventorySnap />} />
+          
+          {/* Rework Route */}
+          <Route path="/rework" element={<ManageRework />} />
+          <Route path="/rework/create-work-orders" element={<CreateWorkOrders />} />
         </Routes>
       </Layout>
     </Router>
