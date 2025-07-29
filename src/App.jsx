@@ -31,6 +31,7 @@ import InventoryLogValue from './pages/InventoryLogValue'
 import InventorySnap from './pages/InventorySnap'
 import ManageRework from './pages/ManageRework'
 import CreateWorkOrders from './pages/CreateWorkOrders'
+import ManageKits from './pages/ManageKits'
 
 function App() {
   return (
@@ -88,6 +89,7 @@ function App() {
           {/* Rework Route */}
           <Route path="/rework" element={<ManageRework />} />
           <Route path="/rework/create-work-orders" element={<CreateWorkOrders />} />
+          <Route path="/rework/manage-kits" element={<ManageKits />} />
         </Routes>
       </Layout>
     </Router>
