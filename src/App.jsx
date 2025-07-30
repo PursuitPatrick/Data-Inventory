@@ -28,6 +28,7 @@ import CreateOrder from './pages/CreateOrder'
 import OrderLookup from './pages/OrderLookup'
 import RapidLookup from './pages/RapidLookup'
 import AutomagicallyOrderSearch from './pages/AutomagicallyOrderSearch'
+import RoutingRequests from './pages/RoutingRequests'
 import CreateSalesOrderForm from './pages/CreateSalesOrderForm'
 import OrderFileUploadPage from './pages/OrderFileUploadPage'
 import ManagePOs from './pages/ManagePOs'
@@ -109,6 +110,7 @@ function App() {
           <Route path="/orders/lookup" element={<OrderLookup />} />
           <Route path="/orders/rapid-lookup" element={<RapidLookup />} />
           <Route path="/orders/automagically-search" element={<AutomagicallyOrderSearch />} />
+          <Route path="/orders/routing-requests" element={<RoutingRequests />} />
                       <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
             <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
         </Routes>
