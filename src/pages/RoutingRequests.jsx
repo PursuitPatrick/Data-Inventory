@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronDown, Download, Plus, ArrowLeft, Calendar } from 'lucide-react'
+import { ChevronDown, Download, Plus, ArrowLeft } from 'lucide-react'
 
 const RoutingRequests = () => {
   const navigate = useNavigate()
@@ -12,86 +12,140 @@ const RoutingRequests = () => {
   const [shippingToolsOpen, setShippingToolsOpen] = useState(false)
   
   // Table states
+  const [activeTab, setActiveTab] = useState('')
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-
-  // Filter states
-  const [filterData, setFilterData] = useState({
-    brandId: 'MAGM - MAGM LLC',
-    warehouseId: 'All Warehouses',
-    carriers: 'All Carriers',
-    shipMethods: 'All Ship Methods',
-    fromDate: '2025-07-30',
-    toDate: '2025-07-30',
-    retailers: 'All Retailers',
-    sku: ''
-  })
-
-  // Date range state
-  const [selectedDateRange, setSelectedDateRange] = useState('Today')
 
   // Mock data for routing requests
   const mockRoutingRequests = [
     {
       id: 1,
-      requestNumber: 'RR-2024-001',
-      orderNumber: 'ORD-2024-001',
+      shipDate: '2025-01-15',
+      sysNumber: 'SYS001',
+      orderNumber: 'ORD-2025-001',
+      custPONumber: 'PO-001',
       clientId: 'CLIENT001',
-      requestType: 'Route Change',
-      priority: 'High',
-      status: 'Pending',
-      requestedBy: 'John Doe',
-      requestDate: '2024-01-15',
-      description: 'Change shipping route to avoid delays'
+      retailer: 'Amazon',
+      dc: 'DC-A',
+      shipMethod: 'Express',
+      qty: 25,
+      cost: 125.50,
+      weight: '15.5 lbs',
+      trackingNumber: '1Z999AA1234567890',
+      status: 'Ready For Routing'
     },
     {
       id: 2,
-      requestNumber: 'RR-2024-002',
-      orderNumber: 'ORD-2024-002',
+      shipDate: '2025-01-16',
+      sysNumber: 'SYS002',
+      orderNumber: 'ORD-2025-002',
+      custPONumber: 'PO-002',
       clientId: 'CLIENT002',
-      requestType: 'Carrier Change',
-      priority: 'Medium',
-      status: 'In Review',
-      requestedBy: 'Jane Smith',
-      requestDate: '2024-01-14',
-      description: 'Switch to faster carrier for urgent delivery'
+      retailer: 'Walmart',
+      dc: 'DC-B',
+      shipMethod: 'Standard',
+      qty: 12,
+      cost: 89.99,
+      weight: '8.2 lbs',
+      trackingNumber: '1Z999AA1234567891',
+      status: 'Problem With Routing'
     },
     {
       id: 3,
-      requestNumber: 'RR-2024-003',
-      orderNumber: 'ORD-2024-003',
+      shipDate: '2025-01-17',
+      sysNumber: 'SYS003',
+      orderNumber: 'ORD-2025-003',
+      custPONumber: 'PO-003',
       clientId: 'CLIENT003',
-      requestType: 'Address Update',
-      priority: 'Low',
-      status: 'Approved',
-      requestedBy: 'Bob Johnson',
-      requestDate: '2024-01-13',
-      description: 'Update delivery address for customer'
+      retailer: 'Target',
+      dc: 'DC-A',
+      shipMethod: 'Express',
+      qty: 40,
+      cost: 245.75,
+      weight: '22.1 lbs',
+      trackingNumber: '1Z999AA1234567892',
+      status: 'Routing Requested'
     },
     {
       id: 4,
-      requestNumber: 'RR-2024-004',
-      orderNumber: 'ORD-2024-004',
+      shipDate: '2025-01-18',
+      sysNumber: 'SYS004',
+      orderNumber: 'ORD-2025-004',
+      custPONumber: 'PO-004',
       clientId: 'CLIENT004',
-      requestType: 'Route Change',
-      priority: 'High',
-      status: 'Rejected',
-      requestedBy: 'Alice Brown',
-      requestDate: '2024-01-12',
-      description: 'Alternative route due to weather conditions'
+      retailer: 'Best Buy',
+      dc: 'DC-C',
+      shipMethod: 'Standard',
+      qty: 6,
+      cost: 67.25,
+      weight: '3.8 lbs',
+      trackingNumber: '1Z999AA1234567893',
+      status: 'Ready For Routing'
     },
     {
       id: 5,
-      requestNumber: 'RR-2024-005',
-      orderNumber: 'ORD-2024-005',
+      shipDate: '2025-01-19',
+      sysNumber: 'SYS005',
+      orderNumber: 'ORD-2025-005',
+      custPONumber: 'PO-005',
       clientId: 'CLIENT005',
-      requestType: 'Carrier Change',
-      priority: 'Medium',
-      status: 'Pending',
-      requestedBy: 'Charlie Wilson',
-      requestDate: '2024-01-11',
-      description: 'Change to more cost-effective carrier'
+      retailer: 'Home Depot',
+      dc: 'DC-B',
+      shipMethod: 'Express',
+      qty: 18,
+      cost: 156.80,
+      weight: '12.7 lbs',
+      trackingNumber: '1Z999AA1234567894',
+      status: 'Routing Requested'
+    },
+    {
+      id: 6,
+      shipDate: '2025-01-20',
+      sysNumber: 'SYS006',
+      orderNumber: 'ORD-2025-006',
+      custPONumber: 'PO-006',
+      clientId: 'CLIENT006',
+      retailer: 'Costco',
+      dc: 'DC-A',
+      shipMethod: 'Standard',
+      qty: 12,
+      cost: 98.45,
+      weight: '8.5 lbs',
+      trackingNumber: '1Z999AA1234567895',
+      status: 'Pending'
+    },
+    {
+      id: 7,
+      shipDate: '2025-01-21',
+      sysNumber: 'SYS007',
+      orderNumber: 'ORD-2025-007',
+      custPONumber: 'PO-007',
+      clientId: 'CLIENT007',
+      retailer: 'Lowe\'s',
+      dc: 'DC-B',
+      shipMethod: 'Express',
+      qty: 9,
+      cost: 78.90,
+      weight: '5.2 lbs',
+      trackingNumber: '1Z999AA1234567896',
+      status: 'In Review'
+    },
+    {
+      id: 8,
+      shipDate: '2025-01-22',
+      sysNumber: 'SYS008',
+      orderNumber: 'ORD-2025-008',
+      custPONumber: 'PO-008',
+      clientId: 'CLIENT008',
+      retailer: 'Macy\'s',
+      dc: 'DC-C',
+      shipMethod: 'Standard',
+      qty: 15,
+      cost: 134.20,
+      weight: '7.8 lbs',
+      trackingNumber: '1Z999AA1234567897',
+      status: 'Approved'
     }
   ]
 
@@ -114,44 +168,57 @@ const RoutingRequests = () => {
 
   const shippingToolsOptions = []
 
+  // Tabs - routing request statuses
+  const tabs = [
+    { id: 'Ready For Routing', label: 'Ready For Routing' },
+    { id: 'Problem With Routing', label: 'Problem With Routing' },
+    { id: 'Routing Requested', label: 'Routing Requested' }
+  ]
 
-
-  const getFilteredRequests = () => {
+  const getFilteredRoutingRequests = () => {
     let filtered = mockRoutingRequests
+
+    // Filter by active tab (if one is selected)
+    if (activeTab) {
+      filtered = filtered.filter(request => request.status === activeTab)
+    }
 
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(request =>
-        request.requestNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         request.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         request.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.requestedBy.toLowerCase().includes(searchTerm.toLowerCase())
+        request.retailer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        request.sysNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        request.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     return filtered
   }
 
+  const getTabCount = (tabId) => {
+    return mockRoutingRequests.filter(request => request.status === tabId).length
+  }
 
-
-  const getPaginatedRequests = () => {
-    const filtered = getFilteredRequests()
+  const getPaginatedRoutingRequests = () => {
+    const filtered = getFilteredRoutingRequests()
     const startIndex = (currentPage - 1) * recordsPerPage
     const endIndex = startIndex + recordsPerPage
     return filtered.slice(startIndex, endIndex)
   }
 
   const getTotalPages = () => {
-    return Math.ceil(getFilteredRequests().length / recordsPerPage)
+    return Math.ceil(getFilteredRoutingRequests().length / recordsPerPage)
   }
 
   const handleRecordsPerPageChange = (value) => {
-    setRecordsPerPage(parseInt(value))
+    setRecordsPerPage(Number(value))
     setCurrentPage(1)
   }
 
   const handlePageChange = (value) => {
-    setCurrentPage(parseInt(value))
+    setCurrentPage(Number(value))
   }
 
   const handleSearch = () => {
@@ -159,28 +226,24 @@ const RoutingRequests = () => {
     console.log('Searching for:', searchTerm)
   }
 
-  const handleFilterChange = (field, value) => {
-    setFilterData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
   const exportToCSV = () => {
     const headers = [
-      'Request #', 'Order #', 'Client ID', 'Request Type', 'Priority', 'Status', 'Requested By', 'Request Date', 'Description'
+      'Sys #', 'Order #', 'DC', 'Client ID', 'Retailer', 'PO #', 'Boxes', 'Weight', 'Ship Method', 'Status', 'Ship Start', 'Ship End'
     ]
 
-    const data = getFilteredRequests().map(request => [
-      request.requestNumber || '',
+    const data = getFilteredRoutingRequests().map(request => [
+      request.sysNumber || '',
       request.orderNumber || '',
+      request.dc || '',
       request.clientId || '',
-      request.requestType || '',
-      request.priority || '',
+      request.retailer || '',
+      request.custPONumber || '',
+      request.qty || '',
+      request.weight || '',
+      request.shipMethod || '',
       request.status || '',
-      request.requestedBy || '',
-      request.requestDate ? new Date(request.requestDate).toLocaleDateString() : '',
-      request.description || ''
+      request.shipDate ? new Date(request.shipDate).toLocaleDateString() : '',
+      request.shipDate ? new Date(request.shipDate).toLocaleDateString() : ''
     ])
 
     const csvContent = [
@@ -248,14 +311,12 @@ const RoutingRequests = () => {
                     key={index}
                     onClick={() => {
                       setRoutingOpen(false)
-                      if (option.label === 'Routing Requests') {
-                        // Stay on current page
-                      } else {
-                        navigate(option.path)
-                      }
+                      navigate(option.path)
                     }}
                     className={`w-full text-left px-4 py-2 text-sm ${
-                      option.label === 'Routing Requests' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                      option.label === 'Routing Requests' 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     {option.label}
@@ -346,230 +407,12 @@ const RoutingRequests = () => {
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </button>
-
-            {/* Filter Section */}
-            <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Routing Requests Filters</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {/* Brand ID */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Brand ID</label>
-                  <select
-                    value={filterData.brandId}
-                    onChange={(e) => handleFilterChange('brandId', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="MAGM - MAGM LLC">MAGM - MAGM LLC</option>
-                    <option value="BRAND-001 - WestCo Distribution">BRAND-001 - WestCo Distribution</option>
-                    <option value="BRAND-002 - Metro Supplies">BRAND-002 - Metro Supplies</option>
-                  </select>
-                </div>
-
-                {/* Warehouse ID */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Warehouse ID</label>
-                  <select
-                    value={filterData.warehouseId}
-                    onChange={(e) => handleFilterChange('warehouseId', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="All Warehouses">All Warehouses</option>
-                    <option value="WH-001 - Fort Lauderdale">WH-001 - Fort Lauderdale</option>
-                    <option value="WH-002 - Bronx, NY">WH-002 - Bronx, NY</option>
-                    <option value="WH-003 - Los Angeles">WH-003 - Los Angeles</option>
-                  </select>
-                </div>
-
-                {/* Carriers */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Carriers</label>
-                  <select
-                    value={filterData.carriers}
-                    onChange={(e) => handleFilterChange('carriers', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="All Carriers">All Carriers</option>
-                    <option value="FedEx">FedEx</option>
-                    <option value="UPS">UPS</option>
-                    <option value="USPS">USPS</option>
-                    <option value="DHL">DHL</option>
-                  </select>
-                </div>
-
-                {/* Ship Methods */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ship Methods</label>
-                  <select
-                    value={filterData.shipMethods}
-                    onChange={(e) => handleFilterChange('shipMethods', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="All Ship Methods">All Ship Methods</option>
-                    <option value="Ground">Ground</option>
-                    <option value="Express">Express</option>
-                    <option value="Overnight">Overnight</option>
-                    <option value="2-Day">2-Day</option>
-                  </select>
-                </div>
-
-                {/* From Date */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">From</label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={filterData.fromDate}
-                      onChange={(e) => handleFilterChange('fromDate', e.target.value)}
-                      className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <Calendar className="absolute right-2 top-2.5 h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-
-                {/* To Date */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={filterData.toDate}
-                      onChange={(e) => handleFilterChange('toDate', e.target.value)}
-                      className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <Calendar className="absolute right-2 top-2.5 h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-
-                {/* Retailers */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Retailers</label>
-                  <select
-                    value={filterData.retailers}
-                    onChange={(e) => handleFilterChange('retailers', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="All Retailers">All Retailers</option>
-                    <option value="Amazon">Amazon</option>
-                    <option value="Walmart">Walmart</option>
-                    <option value="Target">Target</option>
-                    <option value="Best Buy">Best Buy</option>
-                    <option value="Home Depot">Home Depot</option>
-                  </select>
-                </div>
-
-                {/* SKU */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">SKU</label>
-                  <input
-                    type="text"
-                    value={filterData.sku}
-                    onChange={(e) => handleFilterChange('sku', e.target.value)}
-                    placeholder="Enter SKU"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Show Results Button */}
-                <div className="flex items-end">
-                  <button
-                    onClick={() => console.log('Show Results clicked')}
-                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium"
-                  >
-                    Show Results
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Date Range Options */}
-            <div className="mt-4">
-              <div className="flex flex-wrap items-center justify-center space-x-4 text-sm">
-                <button
-                  onClick={() => setSelectedDateRange('Today')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'Today'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Today
-                </button>
-                <button
-                  onClick={() => setSelectedDateRange('Yesterday')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'Yesterday'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Yesterday
-                </button>
-                <button
-                  onClick={() => setSelectedDateRange('This Week')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'This Week'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  This Week
-                </button>
-                <button
-                  onClick={() => setSelectedDateRange('Last Week')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'Last Week'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Last Week
-                </button>
-                <button
-                  onClick={() => setSelectedDateRange('This Month')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'This Month'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  This Month
-                </button>
-                <button
-                  onClick={() => setSelectedDateRange('Last Month')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'Last Month'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Last Month
-                </button>
-                <button
-                  onClick={() => setSelectedDateRange('Custom Dates')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    selectedDateRange === 'Custom Dates'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Custom Dates
-                </button>
-              </div>
-              
-              {/* Warning Text */}
-              <div className="mt-3 text-center">
-                <p className="text-red-600 text-sm font-medium">
-                  Search Date range limited to Today - 180 Days
-                </p>
-              </div>
-            </div>
           </div>
           
           {/* Right side - Requests counter and buttons */}
           <div className="flex items-center space-x-3">
             <div className="text-sm text-gray-500">
-              Showing {getPaginatedRequests().length} of {getFilteredRequests().length} requests
+              Showing {getPaginatedRoutingRequests().length} of {getFilteredRoutingRequests().length} requests
             </div>
             <div className="flex items-center space-x-2">
               <button 
@@ -580,7 +423,7 @@ const RoutingRequests = () => {
                 Export
               </button>
               <button 
-                onClick={() => navigate('/orders/routing-requests/create')}
+                onClick={() => console.log('Create new routing request')}
                 className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 hover:border-blue-700 transition-colors duration-200"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -639,13 +482,16 @@ const RoutingRequests = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  console.log('Search term:', e.target.value)
+                }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     handleSearch()
                   }
                 }}
-                placeholder="Search by Request #, Order #, or Client ID"
+                placeholder="Search by Order Number, Client ID, or Retailer"
                 className="text-xs px-2 py-1 border border-gray-300 rounded w-32 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
@@ -658,55 +504,87 @@ const RoutingRequests = () => {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="border-b border-gray-200">
+          <div className="flex flex-wrap gap-4 sm:gap-6 lg:gap-8">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  activeTab === tab.id
+                    ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'
+                    : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:bg-gray-50'
+                }`}
+              >
+                {tab.label} ({getTabCount(tab.id)})
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Column Headers */}
-        <div className="bg-gray-800 text-white px-4 py-2 grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] text-sm font-medium">
-          <div className="flex items-center pl-2">
+        <div className="bg-gray-800 text-white px-4 py-2 flex items-center text-xs font-medium">
+          <div className="flex items-center pl-2 w-8">
             <input type="checkbox" className="w-4 h-4" />
           </div>
-          <div>Ship Date</div>
-          <div>Sys #</div>
-          <div>Order #</div>
-          <div>Cust PO #</div>
-          <div>Client ID</div>
-          <div>Retailer</div>
-          <div>DC</div>
-          <div>Ship Method</div>
-          <div>Qty</div>
-          <div>Cost</div>
-          <div>Weight</div>
-          <div>Tracking #</div>
+          <div className="flex-1 min-w-0 px-1">Sys #</div>
+          <div className="flex-1 min-w-0 px-1">Order #</div>
+          <div className="flex-1 min-w-0 px-1">DC</div>
+          <div className="flex-1 min-w-0 px-1">Client ID</div>
+          <div className="flex-1 min-w-0 px-1">Retailer</div>
+          <div className="flex-1 min-w-0 px-1">PO #</div>
+          <div className="flex-1 min-w-0 px-1">Boxes</div>
+          <div className="flex-1 min-w-0 px-1">Weight</div>
+          <div className="flex-1 min-w-0 px-1">Ship Method</div>
+          <div className="flex-1 min-w-0 px-1">Status</div>
+          <div className="flex-1 min-w-0 px-1">Ship Start</div>
+          <div className="flex-1 min-w-0 px-1">Ship End</div>
         </div>
 
         {/* Routing Requests Rows */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {getPaginatedRequests().map((request) => (
-            <div key={request.id} className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-gray-200 py-3 px-4 text-sm text-gray-800 hover:bg-gray-50">
-              <div className="flex items-center pl-2">
+          {getPaginatedRoutingRequests().map((request) => (
+            <div key={request.id} className="flex items-center border-b border-gray-200 py-3 px-4 text-sm text-gray-800 hover:bg-gray-50">
+              <div className="flex items-center pl-2 w-8">
                 <input type="checkbox" className="w-4 h-4" />
               </div>
-              <div className="flex items-center">{new Date(request.requestDate).toLocaleDateString()}</div>
-              <div className="flex items-center">{request.requestNumber}</div>
-              <div className="flex items-center">{request.orderNumber}</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">{request.clientId}</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">-</div>
-              <div className="flex items-center">-</div>
+              <div className="flex-1 min-w-0 px-1">{request.sysNumber}</div>
+              <div className="flex-1 min-w-0 px-1">{request.orderNumber}</div>
+              <div className="flex-1 min-w-0 px-1">{request.dc}</div>
+              <div className="flex-1 min-w-0 px-1">{request.clientId}</div>
+              <div className="flex-1 min-w-0 px-1">{request.retailer}</div>
+              <div className="flex-1 min-w-0 px-1">{request.custPONumber}</div>
+              <div className="flex-1 min-w-0 px-1">{request.qty}</div>
+              <div className="flex-1 min-w-0 px-1">{request.weight}</div>
+              <div className="flex-1 min-w-0 px-1">{request.shipMethod}</div>
+              <div className="flex-1 min-w-0 px-1">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  request.status === 'Ready For Routing' ? 'bg-green-100 text-green-800' :
+                  request.status === 'Problem With Routing' ? 'bg-red-100 text-red-800' :
+                  request.status === 'Routing Requested' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {request.status}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0 px-1 text-xs">
+                {new Date(request.shipDate).toLocaleDateString()}
+              </div>
+              <div className="flex-1 min-w-0 px-1 text-xs">
+                {new Date(request.shipDate).toLocaleDateString()}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Approve Requests Button */}
+        {/* Process Requests Button */}
         <div className="mt-3">
           <button
-            onClick={() => console.log("Approve selected requests")}
+            onClick={() => console.log("Process selected routing requests")}
             className="bg-black text-white text-xs px-3 py-1.5 rounded hover:bg-gray-800 transition-colors duration-200"
           >
-            Approve Requests
+            Process Requests
           </button>
         </div>
       </div>
