@@ -34,6 +34,7 @@ import CreateWorkOrders from './pages/CreateWorkOrders'
 import ManageKits from './pages/ManageKits'
 import ManageOrders from './pages/ManageOrders'
 import CreateOrder from './pages/CreateOrder'
+import OrderLookup from './pages/OrderLookup'
 import CreateProductForm from './pages/CreateProductForm'
 import CreateSalesOrderForm from './pages/CreateSalesOrderForm'
 import OrderFileUploadPage from './pages/OrderFileUploadPage'
@@ -99,6 +100,7 @@ function App() {
           {/* Orders Route */}
           <Route path="/orders" element={<ManageOrders />} />
           <Route path="/orders/create" element={<CreateOrder />} />
+          <Route path="/orders/lookup" element={<OrderLookup />} />
           <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
           <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
         </Routes>
