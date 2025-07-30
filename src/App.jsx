@@ -34,7 +34,8 @@ import CreateWorkOrders from './pages/CreateWorkOrders'
 import ManageKits from './pages/ManageKits'
 import ManageOrders from './pages/ManageOrders'
 import CreateOrder from './pages/CreateOrder'
-import OrderWebFormPage from './pages/OrderWebFormPage'
+import CreateProductForm from './pages/CreateProductForm'
+import CreateSalesOrderForm from './pages/CreateSalesOrderForm'
 import OrderFileUploadPage from './pages/OrderFileUploadPage'
 
 function App() {
@@ -46,7 +47,7 @@ function App() {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/products" element={<InventoryLayout><ManageProducts /></InventoryLayout>} />
           <Route path="/create-products" element={<InventoryLayout><CreateProducts /></InventoryLayout>} />
-          <Route path="/create-products/web-form" element={<InventoryLayout><WebFormPage /></InventoryLayout>} />
+          <Route path="/create-products/web-form" element={<InventoryLayout><CreateProductForm /></InventoryLayout>} />
           <Route path="/create-products/file-upload" element={<InventoryLayout><FileUploadPage /></InventoryLayout>} />
           <Route path="/create-child-expiration" element={<InventoryLayout><CreateChildExpiration /></InventoryLayout>} />
           <Route path="/create-child-serial" element={<InventoryLayout><CreateChildSerial /></InventoryLayout>} />
@@ -98,7 +99,7 @@ function App() {
           {/* Orders Route */}
           <Route path="/orders" element={<ManageOrders />} />
           <Route path="/orders/create" element={<CreateOrder />} />
-          <Route path="/create-order/web-form" element={<OrderWebFormPage />} />
+          <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
           <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
         </Routes>
       </Layout>

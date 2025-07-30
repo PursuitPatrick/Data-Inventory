@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-export default function OrderWebFormPage() {
+const CreateSalesOrderForm = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     shipStartDate: '',
@@ -13,7 +13,7 @@ export default function OrderWebFormPage() {
     shipMethod: '',
     rushOrder: 'No',
     orderNum: '',
-    custPoNum: '',
+    custPONum: '',
     packSlipComment: '',
     packingIns: '',
     location: '',
@@ -49,24 +49,8 @@ export default function OrderWebFormPage() {
     }
     
     // Real-time validation for required fields
-    const requiredFields = ['clientId', 'dc', 'carriers', 'shipMethod', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
-    if (requiredFields.includes(field)) {
+    if (['clientId', 'dc', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode'].includes(field)) {
       validateField(field, value)
-    }
-
-    // Reset dependent fields when parent field changes
-    if (field === 'clientId' || field === 'dc') {
-      setFormData(prev => ({
-        ...prev,
-        carriers: '',
-        shipMethod: ''
-      }))
-    }
-    if (field === 'carriers') {
-      setFormData(prev => ({
-        ...prev,
-        shipMethod: ''
-      }))
     }
   }
 
@@ -79,7 +63,7 @@ export default function OrderWebFormPage() {
   }
 
   const validateField = (field, value) => {
-    const requiredFields = ['clientId', 'dc', 'carriers', 'shipMethod', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
+    const requiredFields = ['clientId', 'dc', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
     
     if (requiredFields.includes(field) && !value.trim()) {
       setErrors(prev => ({
@@ -95,7 +79,7 @@ export default function OrderWebFormPage() {
   }
 
   const validateForm = () => {
-    const requiredFields = ['clientId', 'dc', 'carriers', 'shipMethod', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
+    const requiredFields = ['clientId', 'dc', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
     const newErrors = {}
     
     requiredFields.forEach(field => {
@@ -109,23 +93,34 @@ export default function OrderWebFormPage() {
   }
 
   const isFormValid = () => {
-    const requiredFields = ['clientId', 'dc', 'carriers', 'shipMethod', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
+    const requiredFields = ['clientId', 'dc', 'orderNum', 'shipToName1', 'shipToAddress1', 'shipToCity', 'shipToStateOrProvince', 'shipToZipOrPostalCode']
     return requiredFields.every(field => formData[field].trim() !== '')
+  }
+
+  const handleSave = () => {
+    if (validateForm()) {
+      console.log('Sales Order Form data:', formData)
+      // TODO: Add save logic for sales order
+    }
+  }
+
+  const handleCancel = () => {
+    navigate(-1)
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold mb-2">Create Order</h1>
+          <h1 className="text-2xl font-bold mb-2">Create Sales Order</h1>
           <p className="text-sm text-gray-600 mb-2">
-            Manually enter order details to create a new order entry.
+            Manually enter sales order details to create a new order entry.
           </p>
                  
           {/* Caution Message */}
           <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded text-sm flex items-center space-x-2 mt-4 mb-6">
             <span>⚠️</span>
-            <span>Please enter the information for the order you would like to create.</span>
+            <span>Please enter the information for the sales order you would like to create.</span>
           </div>
 
           {/* Back Button */}
@@ -184,7 +179,7 @@ export default function OrderWebFormPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Client ID <span className="text-red-500">*</span>
+                        ClientID <span className="text-red-500">*</span>
                       </label>
                       <span className="text-xs text-gray-500">Client identifier</span>
                     </div>
@@ -241,30 +236,23 @@ export default function OrderWebFormPage() {
                     <select
                       value={formData.carriers}
                       onChange={(e) => handleInputChange('carriers', e.target.value)}
-                      onBlur={() => handleBlur('carriers')}
                       disabled={!formData.clientId || !formData.dc}
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        errors.carriers ? 'border-red-500' : 'border-gray-300'
-                      } ${
                         !formData.clientId || !formData.dc
-                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                          : ''
+                          ? 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
+                          : 'border-gray-300'
                       }`}
                     >
                       <option value="">
-                        {!formData.clientId || !formData.dc 
-                          ? 'Please select ClientID and DC first' 
+                        {!formData.clientId || !formData.dc
+                          ? 'Please select ClientID and DC first'
                           : 'Select Carrier'
                         }
                       </option>
                       <option value="UPS">UPS</option>
                       <option value="FedEx">FedEx</option>
                       <option value="DHL">DHL</option>
-                      <option value="USPS">USPS</option>
                     </select>
-                    {errors.carriers && (
-                      <p className="text-red-600 text-xs mt-1">{errors.carriers}</p>
-                    )}
                   </div>
 
                   {/* Ship Method */}
@@ -278,36 +266,29 @@ export default function OrderWebFormPage() {
                     <select
                       value={formData.shipMethod}
                       onChange={(e) => handleInputChange('shipMethod', e.target.value)}
-                      onBlur={() => handleBlur('shipMethod')}
                       disabled={!formData.carriers}
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        errors.shipMethod ? 'border-red-500' : 'border-gray-300'
-                      } ${
                         !formData.carriers
-                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                          : ''
+                          ? 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
+                          : 'border-gray-300'
                       }`}
                     >
                       <option value="">
-                        {!formData.carriers 
-                          ? 'Please select Carrier first' 
+                        {!formData.carriers
+                          ? 'Please select Carrier first'
                           : 'Select Ship Method'
                         }
                       </option>
                       <option value="Ground">Ground</option>
                       <option value="Express">Express</option>
-                      <option value="Priority">Priority</option>
-                      <option value="Standard">Standard</option>
+                      <option value="Overnight">Overnight</option>
                     </select>
-                    {errors.shipMethod && (
-                      <p className="text-red-600 text-xs mt-1">{errors.shipMethod}</p>
-                    )}
                   </div>
 
                   {/* Rush Order */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Rush Order</label>
+                      <label className="text-sm font-medium text-gray-700">RushOrder</label>
                       <span className="text-xs text-gray-500">Rush order indicator</span>
                     </div>
                     <select
@@ -324,9 +305,9 @@ export default function OrderWebFormPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Order Number <span className="text-red-500">*</span>
+                        OrderNum <span className="text-red-500">*</span>
                       </label>
-                      <span className="text-xs text-gray-500">Unique order identifier</span>
+                      <span className="text-xs text-gray-500">Order number</span>
                     </div>
                     <input
                       type="text"
@@ -346,13 +327,13 @@ export default function OrderWebFormPage() {
                   {/* Customer PO Number */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Customer PO Number</label>
-                      <span className="text-xs text-gray-500">Customer purchase order number</span>
+                      <label className="text-sm font-medium text-gray-700">Cust PO Num</label>
+                      <span className="text-xs text-gray-500">Customer PO number</span>
                     </div>
                     <input
                       type="text"
-                      value={formData.custPoNum}
-                      onChange={(e) => handleInputChange('custPoNum', e.target.value)}
+                      value={formData.custPONum}
+                      onChange={(e) => handleInputChange('custPONum', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter customer PO number"
                     />
@@ -361,7 +342,7 @@ export default function OrderWebFormPage() {
                   {/* Pack Slip Comment */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Pack Slip Comment</label>
+                      <label className="text-sm font-medium text-gray-700">PackSlipComment</label>
                       <span className="text-xs text-gray-500">Packing slip comment</span>
                     </div>
                     <input
@@ -376,8 +357,8 @@ export default function OrderWebFormPage() {
                   {/* Packing Instructions */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Packing Instructions</label>
-                      <span className="text-xs text-gray-500">Special packing instructions</span>
+                      <label className="text-sm font-medium text-gray-700">Packing Ins</label>
+                      <span className="text-xs text-gray-500">Packing instructions</span>
                     </div>
                     <input
                       type="text"
@@ -423,7 +404,7 @@ export default function OrderWebFormPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Ship To Name 1 <span className="text-red-500">*</span>
+                        ShipToName1 <span className="text-red-500">*</span>
                       </label>
                       <span className="text-xs text-gray-500">Primary recipient name</span>
                     </div>
@@ -435,7 +416,7 @@ export default function OrderWebFormPage() {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.shipToName1 ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Enter recipient name"
+                      placeholder="Enter primary recipient name"
                     />
                     {errors.shipToName1 && (
                       <p className="text-red-600 text-xs mt-1">{errors.shipToName1}</p>
@@ -445,7 +426,7 @@ export default function OrderWebFormPage() {
                   {/* Ship To Name 2 */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Ship To Name 2</label>
+                      <label className="text-sm font-medium text-gray-700">ShipToName2</label>
                       <span className="text-xs text-gray-500">Secondary recipient name</span>
                     </div>
                     <input
@@ -461,7 +442,7 @@ export default function OrderWebFormPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Ship To Address 1 <span className="text-red-500">*</span>
+                        ShipToAddress1 <span className="text-red-500">*</span>
                       </label>
                       <span className="text-xs text-gray-500">Primary address line</span>
                     </div>
@@ -483,7 +464,7 @@ export default function OrderWebFormPage() {
                   {/* Ship To Address 2 */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Ship To Address 2</label>
+                      <label className="text-sm font-medium text-gray-700">ShipToAddress2</label>
                       <span className="text-xs text-gray-500">Secondary address line</span>
                     </div>
                     <input
@@ -498,8 +479,8 @@ export default function OrderWebFormPage() {
                   {/* Ship To Country */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Ship To Country</label>
-                      <span className="text-xs text-gray-500">Country of destination</span>
+                      <label className="text-sm font-medium text-gray-700">ShipToCountry</label>
+                      <span className="text-xs text-gray-500">Shipping country</span>
                     </div>
                     <select
                       value={formData.shipToCountry}
@@ -509,10 +490,6 @@ export default function OrderWebFormPage() {
                       <option value="United States">United States</option>
                       <option value="Canada">Canada</option>
                       <option value="Mexico">Mexico</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="Germany">Germany</option>
-                      <option value="France">France</option>
-                      <option value="Australia">Australia</option>
                     </select>
                   </div>
 
@@ -520,9 +497,9 @@ export default function OrderWebFormPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Ship To City <span className="text-red-500">*</span>
+                        ShipToCity <span className="text-red-500">*</span>
                       </label>
-                      <span className="text-xs text-gray-500">City of destination</span>
+                      <span className="text-xs text-gray-500">Shipping city</span>
                     </div>
                     <input
                       type="text"
@@ -532,20 +509,20 @@ export default function OrderWebFormPage() {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.shipToCity ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Enter city"
+                      placeholder="Enter shipping city"
                     />
                     {errors.shipToCity && (
                       <p className="text-red-600 text-xs mt-1">{errors.shipToCity}</p>
                     )}
                   </div>
 
-                  {/* Ship To State Or Province */}
+                  {/* Ship To State/Province */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Ship To State Or Province <span className="text-red-500">*</span>
+                        ShipToStateOrProvince <span className="text-red-500">*</span>
                       </label>
-                      <span className="text-xs text-gray-500">State or province</span>
+                      <span className="text-xs text-gray-500">Shipping state/province</span>
                     </div>
                     <input
                       type="text"
@@ -555,20 +532,20 @@ export default function OrderWebFormPage() {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.shipToStateOrProvince ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Enter state or province"
+                      placeholder="Enter shipping state/province"
                     />
                     {errors.shipToStateOrProvince && (
                       <p className="text-red-600 text-xs mt-1">{errors.shipToStateOrProvince}</p>
                     )}
                   </div>
 
-                  {/* Ship To Zip Or Postal Code */}
+                  {/* Ship To Zip/Postal Code */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Ship To Zip Or Postal Code <span className="text-red-500">*</span>
+                        ShipToZipOrPostalCode <span className="text-red-500">*</span>
                       </label>
-                      <span className="text-xs text-gray-500">Postal code</span>
+                      <span className="text-xs text-gray-500">Shipping postal code</span>
                     </div>
                     <input
                       type="text"
@@ -578,7 +555,7 @@ export default function OrderWebFormPage() {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.shipToZipOrPostalCode ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Enter ZIP or postal code"
+                      placeholder="Enter shipping postal code"
                     />
                     {errors.shipToZipOrPostalCode && (
                       <p className="text-red-600 text-xs mt-1">{errors.shipToZipOrPostalCode}</p>
@@ -588,30 +565,30 @@ export default function OrderWebFormPage() {
                   {/* Ship To Email */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Ship To Email</label>
-                      <span className="text-xs text-gray-500">Contact email</span>
+                      <label className="text-sm font-medium text-gray-700">ShipToEmail</label>
+                      <span className="text-xs text-gray-500">Shipping email</span>
                     </div>
                     <input
                       type="email"
                       value={formData.shipToEmail}
                       onChange={(e) => handleInputChange('shipToEmail', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter email address"
+                      placeholder="Enter shipping email"
                     />
                   </div>
 
                   {/* Ship To Tel */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700">Ship To Tel</label>
-                      <span className="text-xs text-gray-500">Contact telephone</span>
+                      <label className="text-sm font-medium text-gray-700">ShipToTel</label>
+                      <span className="text-xs text-gray-500">Shipping telephone</span>
                     </div>
                     <input
                       type="tel"
                       value={formData.shipToTel}
                       onChange={(e) => handleInputChange('shipToTel', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter telephone number"
+                      placeholder="Enter shipping telephone"
                     />
                   </div>
                 </form>
@@ -627,7 +604,7 @@ export default function OrderWebFormPage() {
                   Bill to Details
                 </h2>
               </div>
-
+              
               {/* Bill to Details Form Card */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <form className="space-y-4">
@@ -670,11 +647,11 @@ export default function OrderWebFormPage() {
             </div>
           </div>
 
-          {/* Action Buttons - Bottom Right */}
-          <div className="flex justify-end space-x-2 mt-6 pt-6 border-t border-gray-200">
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-2 pt-6 border-t border-gray-200">
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={handleCancel}
               className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors duration-200"
             >
               Cancel
@@ -682,23 +659,20 @@ export default function OrderWebFormPage() {
             <button
               type="button"
               disabled={!isFormValid()}
-              onClick={() => {
-                if (validateForm()) {
-                  console.log('Create Order clicked')
-                  console.log('Form data:', formData)
-                }
-              }}
+              onClick={handleSave}
               className={`px-4 py-2 rounded transition-colors duration-200 ${
                 isFormValid()
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Create Order
+              Create Sales Order
             </button>
           </div>
         </div>
       </div>
     </div>
-  );
-} 
+  )
+}
+
+export default CreateSalesOrderForm 
