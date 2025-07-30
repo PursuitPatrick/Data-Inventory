@@ -139,7 +139,7 @@ const ManageOrders = () => {
     { label: 'Create Order', path: '/orders/create' },
     { label: 'Order Lookup', path: '/orders/lookup' },
     { label: 'Rapid Lookup', path: '/orders/rapid-lookup' },
-    { label: 'Automagically Order Search', path: '/orders/auto-search' }
+            { label: 'Automagically Order Search', path: '/orders/automagically-search' }
   ]
 
   const routingOptions = [

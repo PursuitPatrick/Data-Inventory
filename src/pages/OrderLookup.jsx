@@ -301,7 +301,7 @@ const OrderLookup = () => {
                 <button
                   onClick={() => {
                     setSalesOrderPipelineOpen(false)
-                    navigate('/orders/auto-search')
+                    navigate('/orders/automagically-search')
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >

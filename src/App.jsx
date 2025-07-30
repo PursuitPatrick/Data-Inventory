@@ -9,36 +9,41 @@ import Shipping from './pages/Shipping'
 import ItemDetail from './pages/ItemDetail'
 import ManageProducts from './pages/ManageProducts'
 import CreateProducts from './pages/CreateProducts'
+import CreateProductForm from './pages/CreateProductForm'
 import FileUploadPage from './pages/FileUploadPage'
 import WebFormPage from './pages/WebFormPage'
 import CreateChildExpiration from './pages/CreateChildExpiration'
 import CreateChildSerial from './pages/CreateChildSerial'
 import ProductDetails from './pages/ProductDetails'
-import ManagePOs from './pages/ManagePOs'
-import CreatePO from './pages/CreatePO'
-import AdHocReceiving from './pages/AdHocReceiving'
-import ManageReturns from './pages/ManageReturns'
-import POLookup from './pages/POLookup'
-import ReceivingLog from './pages/ReceivingLog'
 import ManageInventory from './pages/ManageInventory'
-import InventoryBundles from './pages/InventoryBundles'
-import InventoryKits from './pages/InventoryKits'
 import InventoryByExpiration from './pages/InventoryByExpiration'
 import InventoryBySerial from './pages/InventoryBySerial'
-import StockActivity from './pages/StockActivity'
-import MoveLog from './pages/MoveLog'
-import InventoryLogValue from './pages/InventoryLogValue'
+import InventoryBundles from './pages/InventoryBundles'
+import InventoryKits from './pages/InventoryKits'
 import InventorySnap from './pages/InventorySnap'
-import ManageRework from './pages/ManageRework'
-import CreateWorkOrders from './pages/CreateWorkOrders'
+import InventoryLogValue from './pages/InventoryLogValue'
 import ManageKits from './pages/ManageKits'
 import ManageOrders from './pages/ManageOrders'
 import CreateOrder from './pages/CreateOrder'
 import OrderLookup from './pages/OrderLookup'
 import RapidLookup from './pages/RapidLookup'
-import CreateProductForm from './pages/CreateProductForm'
+import AutomagicallyOrderSearch from './pages/AutomagicallyOrderSearch'
 import CreateSalesOrderForm from './pages/CreateSalesOrderForm'
 import OrderFileUploadPage from './pages/OrderFileUploadPage'
+import ManagePOs from './pages/ManagePOs'
+import CreatePO from './pages/CreatePO'
+import POLookup from './pages/POLookup'
+import ManageReturns from './pages/ManageReturns'
+import ManageRework from './pages/ManageRework'
+import ReceivingLog from './pages/ReceivingLog'
+import StockActivity from './pages/StockActivity'
+import MoveLog from './pages/MoveLog'
+import AdHocReceiving from './pages/AdHocReceiving'
+import CreateWorkOrders from './pages/CreateWorkOrders'
+import ToolsLayout from './components/ToolsLayout'
+import OrdersLayout from './components/OrdersLayout'
+import ReturnsLayout from './components/ReturnsLayout'
+import ReworkLayout from './components/ReworkLayout'
 
 function App() {
   return (
@@ -103,8 +108,9 @@ function App() {
           <Route path="/orders/create" element={<CreateOrder />} />
           <Route path="/orders/lookup" element={<OrderLookup />} />
           <Route path="/orders/rapid-lookup" element={<RapidLookup />} />
-          <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
-          <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
+          <Route path="/orders/automagically-search" element={<AutomagicallyOrderSearch />} />
+                      <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
+            <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
         </Routes>
       </Layout>
     </Router>
