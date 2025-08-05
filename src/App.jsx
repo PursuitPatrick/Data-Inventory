@@ -37,6 +37,7 @@ import CreatePO from './pages/CreatePO'
 import POLookup from './pages/POLookup'
 import ManageReturns from './pages/ManageReturns'
 import CreateReturn from './pages/CreateReturn'
+import ReturnsLog from './pages/ReturnsLog'
 import ManageRework from './pages/ManageRework'
 import ReceivingLog from './pages/ReceivingLog'
 import StockActivity from './pages/StockActivity'
@@ -119,6 +120,7 @@ function App() {
           
           {/* Returns Route */}
           <Route path="/returns/create" element={<CreateReturn />} />
+          <Route path="/returns/log" element={<ReturnsLog />} />
         </Routes>
       </Layout>
     </Router>
