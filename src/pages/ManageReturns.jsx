@@ -8,10 +8,9 @@ const ManageReturns = () => {
   // Dropdown states
   const [returnOrdersOpen, setReturnOrdersOpen] = useState(false)
   const [reportsOpen, setReportsOpen] = useState(false)
-  const [placeholderOpen, setPlaceholderOpen] = useState(false)
   
   // Table states
-  const [activeTab, setActiveTab] = useState('Pending')
+  const [activeTab, setActiveTab] = useState('On Hold')
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
@@ -106,22 +105,20 @@ const ManageReturns = () => {
 
   // Dropdown options
   const returnOrdersOptions = [
-    { label: 'Create Return', path: '/returns/create' },
-    { label: 'Return Lookup', path: '/returns/lookup' }
+    { label: 'Manage Returns', path: '/returns' },
+    { label: 'Create Return', path: '/returns/create' }
   ]
 
   const reportsOptions = [
-    { label: 'Return Reports', path: '/returns/reports' }
+    { label: 'Returns Log', path: '/returns/log' }
   ]
-
-  const placeholderOptions = []
 
   // Tabs
   const tabs = [
-    { id: 'Pending', label: 'Pending' },
-    { id: 'In Process', label: 'In Process' },
-    { id: 'Ready to Process', label: 'Ready to Process' },
-    { id: 'Completed', label: 'Completed' }
+    { id: 'On Hold', label: 'On Hold' },
+    { id: 'Expected', label: 'Expected' },
+    { id: 'Arrived', label: 'Arrived' },
+    { id: 'Verification', label: 'Verification' }
   ]
 
   const getFilteredReturns = () => {
@@ -226,7 +223,11 @@ const ManageReturns = () => {
                     key={index}
                     onClick={() => {
                       setReturnOrdersOpen(false)
-                      navigate(option.path)
+                      if (option.label === 'Manage Returns') {
+                        setActiveTab('Expected')
+                      } else {
+                        navigate(option.path)
+                      }
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
@@ -268,35 +269,7 @@ const ManageReturns = () => {
           )}
         </div>
 
-        {/* Placeholder Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setPlaceholderOpen(!placeholderOpen)}
-            className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <span>Placeholder</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${placeholderOpen ? 'rotate-180' : ''}`} />
-          </button>
-          
-          {placeholderOpen && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                {placeholderOptions.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setPlaceholderOpen(false)
-                      navigate(option.path)
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+
       </div>
 
       <div className="space-y-6">
@@ -474,10 +447,10 @@ const ManageReturns = () => {
               </div>
               <div className="flex-1 min-w-0 px-1">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  returnItem.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                  returnItem.status === 'Ready to Process' ? 'bg-blue-100 text-blue-800' :
-                  returnItem.status === 'In Process' ? 'bg-yellow-100 text-yellow-800' :
-                  returnItem.status === 'Pending' ? 'bg-orange-100 text-orange-800' :
+                  returnItem.status === 'Verification' ? 'bg-green-100 text-green-800' :
+                  returnItem.status === 'Arrived' ? 'bg-blue-100 text-blue-800' :
+                  returnItem.status === 'Expected' ? 'bg-yellow-100 text-yellow-800' :
+                  returnItem.status === 'On Hold' ? 'bg-orange-100 text-orange-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
                   {returnItem.status}

@@ -36,6 +36,7 @@ import ManagePOs from './pages/ManagePOs'
 import CreatePO from './pages/CreatePO'
 import POLookup from './pages/POLookup'
 import ManageReturns from './pages/ManageReturns'
+import CreateReturn from './pages/CreateReturn'
 import ManageRework from './pages/ManageRework'
 import ReceivingLog from './pages/ReceivingLog'
 import StockActivity from './pages/StockActivity'
@@ -113,8 +114,11 @@ function App() {
           <Route path="/orders/automagically-search" element={<AutomagicallyOrderSearch />} />
           <Route path="/orders/routing-requests" element={<RoutingRequests />} />
           <Route path="/orders/shipping-log" element={<ShippingLog />} />
-                      <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
-            <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
+          <Route path="/create-order/web-form" element={<CreateSalesOrderForm />} />
+          <Route path="/create-order/file-upload" element={<OrderFileUploadPage />} />
+          
+          {/* Returns Route */}
+          <Route path="/returns/create" element={<CreateReturn />} />
         </Routes>
       </Layout>
     </Router>
