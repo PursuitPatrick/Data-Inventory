@@ -4,6 +4,9 @@ const path = require('path');
 // Load environment variables from project root .env before loading config
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { serverConfig, dbConfig } = require('./config');
+const { getAllInventory, getInventoryItem, updateInventoryItem, deleteInventoryItem, createInventoryItem } = require('./controllers/inventoryController');
+const { loginUser } = require('./controllers/authController');
+const { authenticateToken } = require('./middleware/authMiddleware');
 const { testConnection, initDatabase, getAllItems, addItem, updateItem, deleteItem, getCategories } = require('./db');
 
 const app = express();
@@ -64,8 +67,49 @@ app.get('/api/categories', async (req, res) => {
   }
 });
 
+// Root-level login alias (POST /login)
+app.post('/login', loginUser);
+
+// Auth routes
+app.use('/auth', require('./routes/authRoutes'));
+
 // Inventory Routes (CRUD)
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
+
+// Protected test route
+app.get('/secure/ping', authenticateToken, (req, res) => {
+  res.json({ ok: true, user: req.user });
+});
+
+// Optional root-level alias per request
+app.get('/inventory', authenticateToken, getAllInventory);
+app.post('/inventory', authenticateToken, createInventoryItem);
+app.get('/inventory/:id', getInventoryItem);
+app.put('/inventory/:id', updateInventoryItem);
+app.delete('/inventory/:id', deleteInventoryItem);
+
+// 404 handler for unmatched routes
+app.use((req, res) => {
+  res.status(404).json({ message: 'Not found' });
+});
+
+// Centralized error handler
+// - Returns 400 for malformed JSON or explicit validation errors (err.status = 400)
+// - Returns provided err.status/message when available
+// - Falls back to 500 for unexpected errors
+app.use((err, req, res, next) => {
+  // Malformed JSON from body parser
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ message: 'Invalid JSON payload' });
+  }
+
+  const statusCode = Number.isInteger(err?.status) ? err.status : 500;
+  const message = err?.message || 'Something went wrong!';
+
+  // Log full error on server only
+  console.error(err);
+  res.status(statusCode).json({ message });
+});
 
 // Start server
 app.listen(PORT, async () => {

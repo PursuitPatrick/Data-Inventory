@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
 const { dbConfig } = require('./config');
 
 // Create a connection pool
@@ -27,9 +28,9 @@ const initDatabase = async () => {
   try {
     const client = await pool.connect();
     
-    // Create inventory table
+    // Create inventory table (named 'inventory' per user request)
     await client.query(`
-      CREATE TABLE IF NOT EXISTS inventory_items (
+      CREATE TABLE IF NOT EXISTS inventory (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description TEXT,
@@ -44,7 +45,7 @@ const initDatabase = async () => {
 
     // Ensure price column exists for legacy tables
     await client.query(`
-      ALTER TABLE inventory_items
+      ALTER TABLE inventory
       ADD COLUMN IF NOT EXISTS price NUMERIC(10,2) DEFAULT 0
     `);
     
@@ -68,6 +69,24 @@ const initDatabase = async () => {
         ('Furniture', 'Office furniture and fixtures')
       ON CONFLICT (name) DO NOTHING
     `);
+
+    // Create users table for authentication
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Seed a default user if not exists (admin / admin123)
+    const defaultUsername = 'admin';
+    const existingUser = await client.query('SELECT 1 FROM users WHERE username = $1', [defaultUsername]);
+    if (existingUser.rowCount === 0) {
+      const passwordHash = await bcrypt.hash('admin123', 10);
+      await client.query('INSERT INTO users (username, password) VALUES ($1, $2)', [defaultUsername, passwordHash]);
+    }
     
     client.release();
     console.log('✅ Database tables initialized successfully');
@@ -83,7 +102,7 @@ const getAllItems = async () => {
   try {
     const result = await pool.query(`
       SELECT i.*, c.name as category_name 
-      FROM inventory_items i 
+      FROM inventory i 
       LEFT JOIN categories c ON i.category = c.name 
       ORDER BY i.created_at DESC
     `);
@@ -99,7 +118,7 @@ const addItem = async (item) => {
   try {
     const { name, description, quantity, category, location } = item;
     const result = await pool.query(`
-      INSERT INTO inventory_items (name, description, quantity, category, location)
+      INSERT INTO inventory (name, description, quantity, category, location)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `, [name, description, quantity, category, location]);
@@ -115,7 +134,7 @@ const updateItem = async (id, updates) => {
   try {
     const { name, description, quantity, category, location } = updates;
     const result = await pool.query(`
-      UPDATE inventory_items 
+      UPDATE inventory 
       SET name = COALESCE($1, name),
           description = COALESCE($2, description),
           quantity = COALESCE($3, quantity),
@@ -135,7 +154,7 @@ const updateItem = async (id, updates) => {
 // Delete inventory item
 const deleteItem = async (id) => {
   try {
-    const result = await pool.query('DELETE FROM inventory_items WHERE id = $1 RETURNING *', [id]);
+    const result = await pool.query('DELETE FROM inventory WHERE id = $1 RETURNING *', [id]);
     return result.rows[0];
   } catch (error) {
     console.error('Error deleting inventory item:', error.message);
