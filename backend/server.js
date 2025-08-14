@@ -76,6 +76,12 @@ app.use('/auth', require('./routes/authRoutes'));
 // Inventory Routes (CRUD)
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
 
+// Shopify routes
+app.use('/api/shopify', require('./routes/shopifyRoutes'));
+
+// Shopify routes (protected)
+app.use('/shopify', require('./routes/shopifyRoutes'));
+
 // Protected test route
 app.get('/secure/ping', authenticateToken, (req, res) => {
   res.json({ ok: true, user: req.user });
