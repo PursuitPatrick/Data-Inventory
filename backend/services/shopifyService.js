@@ -23,6 +23,26 @@ async function shopifyGet(endpoint) {
   }
 }
 
+async function shopifyRequest(method, endpoint, data) {
+  try {
+    const url = `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/${endpoint}`;
+    const response = await axios({
+      method,
+      url,
+      headers: {
+        'X-Shopify-Access-Token': ACCESS_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      data,
+    });
+    return response.data;
+  } catch (error) {
+    const details = error.response?.data || error.message;
+    console.error(`Error ${method?.toUpperCase?.()} ${endpoint}:`, details);
+    throw new Error(typeof details === 'string' ? details : JSON.stringify(details));
+  }
+}
+
 module.exports = {
   getProducts: () => shopifyGet('products.json'),
   getInventoryLevels: (params = {}) => {
@@ -32,6 +52,15 @@ module.exports = {
   },
   getLocations: () => shopifyGet('locations.json'),
   getOrderFulfillments: (orderId) => shopifyGet(`orders/${orderId}/fulfillments.json`),
+  // Write operations (require write scopes on the access token)
+  adjustInventoryLevel: ({ inventory_item_id, location_id, available_adjustment }) =>
+    shopifyRequest('post', 'inventory_levels/adjust.json', {
+      inventory_item_id,
+      location_id,
+      available_adjustment,
+    }),
+  updateProduct: (productId, productPayload) =>
+    shopifyRequest('put', `products/${productId}.json`, { product: productPayload }),
 };
 
 

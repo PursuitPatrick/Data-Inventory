@@ -80,6 +80,41 @@ const initDatabase = async () => {
       )
     `);
 
+    // Create Shopify products table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id BIGINT PRIMARY KEY,
+        title TEXT,
+        handle TEXT,
+        created_at TIMESTAMP,
+        updated_at TIMESTAMP
+      )
+    `);
+
+    // Create Shopify inventory levels table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS inventory_levels (
+        inventory_item_id BIGINT PRIMARY KEY,
+        location_id BIGINT,
+        available INT,
+        updated_at TIMESTAMP,
+        available_changed BOOLEAN DEFAULT FALSE
+      )
+    `);
+
+    // Create Shopify locations table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS locations (
+        id BIGINT PRIMARY KEY,
+        name TEXT,
+        address1 TEXT,
+        city TEXT,
+        province TEXT,
+        country TEXT,
+        zip TEXT
+      )
+    `);
+
     // Seed a default user if not exists (admin / admin123)
     const defaultUsername = 'admin';
     const existingUser = await client.query('SELECT 1 FROM users WHERE username = $1', [defaultUsername]);
