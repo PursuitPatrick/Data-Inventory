@@ -91,6 +91,29 @@ const initDatabase = async () => {
       )
     `);
 
+    // Extend products table with sync metadata columns
+    await client.query(`
+      ALTER TABLE products
+        ADD COLUMN IF NOT EXISTS shopify_updated_at TIMESTAMPTZ,
+        ADD COLUMN IF NOT EXISTS local_updated_at   TIMESTAMPTZ,
+        ADD COLUMN IF NOT EXISTS last_synced_at     TIMESTAMPTZ,
+        ADD COLUMN IF NOT EXISTS sync_status        TEXT DEFAULT 'synced',
+        ADD COLUMN IF NOT EXISTS source_of_truth    TEXT DEFAULT 'shopify'
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_products_shopify_updated_at
+      ON products (shopify_updated_at)
+    `);
+
+    // Helpful product indexes
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_products_handle ON products (handle)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_products_updated_at ON products (updated_at)
+    `);
+
     // Create Shopify inventory levels table
     await client.query(`
       CREATE TABLE IF NOT EXISTS inventory_levels (
@@ -100,6 +123,35 @@ const initDatabase = async () => {
         updated_at TIMESTAMP,
         available_changed BOOLEAN DEFAULT FALSE
       )
+    `);
+
+    // Extend inventory_levels with sync metadata columns
+    await client.query(`
+      ALTER TABLE inventory_levels
+        ADD COLUMN IF NOT EXISTS shopify_updated_at TIMESTAMPTZ,
+        ADD COLUMN IF NOT EXISTS local_updated_at   TIMESTAMPTZ,
+        ADD COLUMN IF NOT EXISTS last_synced_at     TIMESTAMPTZ,
+        ADD COLUMN IF NOT EXISTS sync_status        TEXT DEFAULT 'synced',
+        ADD COLUMN IF NOT EXISTS source_of_truth    TEXT DEFAULT 'shopify'
+    `);
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_inventory_levels_shopify_updated_at
+      ON inventory_levels (shopify_updated_at)
+    `);
+
+    // Helpful inventory indexes
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_inventory_levels_inventory_item ON inventory_levels (inventory_item_id)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_inventory_levels_location ON inventory_levels (location_id)
+    `);
+
+    // Unique composite index to prevent duplicates per location without breaking existing PK
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS ux_inventory_item_location
+      ON inventory_levels (inventory_item_id, location_id)
     `);
 
     // Create Shopify locations table
@@ -113,6 +165,61 @@ const initDatabase = async () => {
         country TEXT,
         zip TEXT
       )
+    `);
+
+    // Append-only audit trail for inventory movements
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS inventory_movements (
+        id SERIAL PRIMARY KEY,
+        inventory_item_id BIGINT NOT NULL,
+        location_id BIGINT,
+        previous_available INT,
+        new_available INT,
+        delta INT,
+        source TEXT, -- 'shopify' | 'backend' | etc
+        occurred_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create table to store received Shopify webhooks (for auditing/deduplication)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS shopify_webhook_events (
+        id SERIAL PRIMARY KEY,
+        topic TEXT NOT NULL,
+        shop_domain TEXT,
+        webhook_id TEXT,
+        payload JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        processed_at TIMESTAMP
+      )
+    `);
+
+    // Unique index to dedupe webhook deliveries by webhook_id when available
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_shopify_webhook_events_webhook_id
+      ON shopify_webhook_events (webhook_id)
+      WHERE webhook_id IS NOT NULL
+    `);
+
+    // Outbox for queued write operations to Shopify (idempotent processing)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS shopify_outbox (
+        id SERIAL PRIMARY KEY,
+        job_type TEXT NOT NULL,
+        idempotency_key TEXT,
+        payload JSONB NOT NULL,
+        status TEXT DEFAULT 'queued',
+        attempts INT DEFAULT 0,
+        last_error TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_shopify_outbox_idempotency
+      ON shopify_outbox (idempotency_key)
+      WHERE idempotency_key IS NOT NULL
     `);
 
     // Seed a default user if not exists (admin / admin123)

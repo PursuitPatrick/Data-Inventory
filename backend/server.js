@@ -15,6 +15,8 @@ const PORT = serverConfig.port;
 
 // Middleware
 app.use(cors());
+// Mount raw-body webhook route BEFORE json parser
+app.use('/webhooks', require('./routes/shopifyWebhookRoutes'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

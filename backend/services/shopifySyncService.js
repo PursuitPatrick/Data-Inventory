@@ -9,15 +9,22 @@ async function syncProducts() {
   try {
     await client.query('BEGIN');
     for (const p of products) {
+      const createdAt = p.created_at ? new Date(p.created_at) : null;
+      const updatedAt = p.updated_at ? new Date(p.updated_at) : null;
       await client.query(
-        `INSERT INTO products (id, title, handle, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO products (id, title, handle, created_at, updated_at, shopify_updated_at, last_synced_at, sync_status)
+         VALUES ($1, $2, $3, $4, $5, $5, NOW(), 'synced')
          ON CONFLICT (id) DO UPDATE SET
            title = EXCLUDED.title,
            handle = EXCLUDED.handle,
            created_at = EXCLUDED.created_at,
-           updated_at = EXCLUDED.updated_at`,
-        [p.id, p.title || null, p.handle || null, p.created_at ? new Date(p.created_at) : null, p.updated_at ? new Date(p.updated_at) : null]
+           updated_at = EXCLUDED.updated_at,
+           shopify_updated_at = EXCLUDED.shopify_updated_at,
+           last_synced_at = NOW(),
+           sync_status = 'synced'
+         WHERE EXCLUDED.shopify_updated_at IS NOT NULL
+           AND (products.shopify_updated_at IS NULL OR EXCLUDED.shopify_updated_at > products.shopify_updated_at)`,
+        [p.id, p.title || null, p.handle || null, createdAt, updatedAt]
       );
     }
     await client.query('COMMIT');
@@ -66,14 +73,20 @@ async function syncInventoryLevels() {
   try {
     await client.query('BEGIN');
     for (const lvl of latestByItem.values()) {
+      const updatedAt = lvl.updated_at ? new Date(lvl.updated_at) : null;
       await client.query(
-        `INSERT INTO inventory_levels (inventory_item_id, location_id, available, updated_at)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO inventory_levels (inventory_item_id, location_id, available, updated_at, shopify_updated_at, last_synced_at, sync_status)
+         VALUES ($1, $2, $3, $4, $4, NOW(), 'synced')
          ON CONFLICT (inventory_item_id) DO UPDATE SET
            location_id = EXCLUDED.location_id,
            available = EXCLUDED.available,
-           updated_at = EXCLUDED.updated_at`,
-        [lvl.inventory_item_id, lvl.location_id || null, lvl.available ?? null, lvl.updated_at ? new Date(lvl.updated_at) : null]
+           updated_at = EXCLUDED.updated_at,
+           shopify_updated_at = EXCLUDED.shopify_updated_at,
+           last_synced_at = NOW(),
+           sync_status = 'synced'
+         WHERE EXCLUDED.shopify_updated_at IS NOT NULL
+           AND (inventory_levels.shopify_updated_at IS NULL OR EXCLUDED.shopify_updated_at > inventory_levels.shopify_updated_at)`,
+        [lvl.inventory_item_id, lvl.location_id || null, lvl.available ?? null, updatedAt]
       );
     }
     await client.query('COMMIT');
