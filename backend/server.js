@@ -8,6 +8,7 @@ const { getAllInventory, getInventoryItem, updateInventoryItem, deleteInventoryI
 const { loginUser } = require('./controllers/authController');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const { testConnection, initDatabase, getAllItems, addItem, updateItem, deleteItem, getCategories } = require('./db');
+const { syncAll, syncRecentOrders } = require('./services/shopifySyncService');
 
 const app = express();
 const PORT = serverConfig.port;
@@ -142,6 +143,43 @@ app.listen(PORT, async () => {
     }
   } catch (error) {
     console.error('❌ Database initialization error:', error.message);
+  }
+
+  // Optional Shopify background sync loops (enable by setting SHOPIFY_SYNC_ENABLE=1)
+  try {
+    if (process.env.SHOPIFY_SYNC_ENABLE === '1') {
+      const invMinutes = Number.parseInt(process.env.SHOPIFY_SYNC_INVENTORY_MINUTES || '10', 10);
+      const prodMinutes = Number.parseInt(process.env.SHOPIFY_SYNC_PRODUCTS_MINUTES || '45', 10); // between 30-60
+      const ordMinutes = Number.parseInt(process.env.SHOPIFY_SYNC_ORDERS_MINUTES || '3', 10); // between 1-5
+
+      const startLoop = (label, fn, minutes) => {
+        if (!Number.isFinite(minutes) || minutes <= 0) {
+          console.warn(`⚠️ Invalid minutes for ${label} loop; not started`);
+          return;
+        }
+        const run = async () => {
+          try {
+            console.log(`🔁 ${label} sync running...`);
+            const result = await fn();
+            console.log(`✅ ${label} sync done:`, JSON.stringify(result));
+          } catch (e) {
+            console.error(`❌ ${label} sync failed:`, e?.message || e);
+          }
+        };
+        run();
+        setInterval(run, minutes * 60 * 1000);
+        console.log(`⏱️ ${label} sync every ${minutes} minute(s)`);
+      };
+
+      // Inventory every 10 minutes
+      startLoop('Inventory', () => syncAll().then(r => ({ inventoryLevelsUpserted: r.inventoryLevelsUpserted })), invMinutes);
+      // Products/catalog every 30-60 minutes (default 45)
+      startLoop('Products', () => syncAll().then(r => ({ productsUpserted: r.productsUpserted })), prodMinutes);
+      // Orders/fulfillment every 1-5 minutes (default 3)
+      startLoop('Orders', () => syncRecentOrders(), ordMinutes);
+    }
+  } catch (err) {
+    console.error('❌ Failed to start Shopify sync loop:', err?.message || err);
   }
 });
 

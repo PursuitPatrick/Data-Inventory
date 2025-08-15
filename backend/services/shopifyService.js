@@ -52,6 +52,12 @@ module.exports = {
   },
   getLocations: () => shopifyGet('locations.json'),
   getOrderFulfillments: (orderId) => shopifyGet(`orders/${orderId}/fulfillments.json`),
+  getOrders: (params = {}) => {
+    const defaults = { status: 'any', limit: 50, order: 'updated_at desc' };
+    const merged = { ...defaults, ...params };
+    const qs = new URLSearchParams(merged).toString();
+    return shopifyGet(`orders.json?${qs}`);
+  },
   // Write operations (require write scopes on the access token)
   adjustInventoryLevel: ({ inventory_item_id, location_id, available_adjustment }) =>
     shopifyRequest('post', 'inventory_levels/adjust.json', {

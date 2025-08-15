@@ -126,11 +126,20 @@ async function syncAll() {
   return { ...prod, ...loc, ...inv };
 }
 
+// Lightweight recent-orders sync for fulfillment tracking (read-only)
+async function syncRecentOrders() {
+  const since = new Date(Date.now() - 1000 * 60 * 60).toISOString(); // last 60 minutes
+  const ordersData = await shopify.getOrders({ updated_at_min: since });
+  // You can persist orders into a local table in a future iteration
+  return { ordersFetched: Array.isArray(ordersData?.orders) ? ordersData.orders.length : 0 };
+}
+
 module.exports = {
   syncProducts,
   syncInventoryLevels,
   syncLocations,
   syncAll,
+  syncRecentOrders,
 };
 
 
