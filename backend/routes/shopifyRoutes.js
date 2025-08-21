@@ -92,6 +92,19 @@ router.post('/inventory-levels/adjust', authenticateToken, async (req, res) => {
   }
 });
 
+router.post('/inventory-levels/set', authenticateToken, async (req, res) => {
+  try {
+    const { inventory_item_id, location_id, available } = req.body || {};
+    if (!inventory_item_id || !location_id || typeof available !== 'number') {
+      return res.status(400).json({ message: 'inventory_item_id, location_id, and numeric available are required' });
+    }
+    const data = await shopify.setInventoryLevel({ inventory_item_id, location_id, available });
+    res.json(data);
+  } catch (err) {
+    res.status(502).json({ message: 'Shopify error', detail: err.message });
+  }
+});
+
 router.put('/products/:id', authenticateToken, async (req, res) => {
   try {
     const productId = req.params.id;

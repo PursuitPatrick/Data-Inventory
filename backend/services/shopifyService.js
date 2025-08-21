@@ -65,6 +65,12 @@ module.exports = {
       location_id,
       available_adjustment,
     }),
+  setInventoryLevel: ({ inventory_item_id, location_id, available }) =>
+    shopifyRequest('post', 'inventory_levels/set.json', {
+      inventory_item_id,
+      location_id,
+      available,
+    }),
   updateProduct: (productId, productPayload) =>
     shopifyRequest('put', `products/${productId}.json`, { product: productPayload }),
 };

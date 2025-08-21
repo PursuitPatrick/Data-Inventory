@@ -13,7 +13,7 @@ async function syncProducts() {
       const updatedAt = p.updated_at ? new Date(p.updated_at) : null;
       await client.query(
         `INSERT INTO products (id, title, handle, created_at, updated_at, shopify_updated_at, last_synced_at, sync_status)
-         VALUES ($1, $2, $3, $4, $5, $5, NOW(), 'synced')
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), 'synced')
          ON CONFLICT (id) DO UPDATE SET
            title = EXCLUDED.title,
            handle = EXCLUDED.handle,
@@ -24,7 +24,7 @@ async function syncProducts() {
            sync_status = 'synced'
          WHERE EXCLUDED.shopify_updated_at IS NOT NULL
            AND (products.shopify_updated_at IS NULL OR EXCLUDED.shopify_updated_at > products.shopify_updated_at)`,
-        [p.id, p.title || null, p.handle || null, createdAt, updatedAt]
+        [p.id, p.title || null, p.handle || null, createdAt, updatedAt, updatedAt]
       );
     }
     await client.query('COMMIT');
@@ -76,7 +76,7 @@ async function syncInventoryLevels() {
       const updatedAt = lvl.updated_at ? new Date(lvl.updated_at) : null;
       await client.query(
         `INSERT INTO inventory_levels (inventory_item_id, location_id, available, updated_at, shopify_updated_at, last_synced_at, sync_status)
-         VALUES ($1, $2, $3, $4, $4, NOW(), 'synced')
+         VALUES ($1, $2, $3, $4, $5, NOW(), 'synced')
          ON CONFLICT (inventory_item_id) DO UPDATE SET
            location_id = EXCLUDED.location_id,
            available = EXCLUDED.available,
@@ -86,7 +86,7 @@ async function syncInventoryLevels() {
            sync_status = 'synced'
          WHERE EXCLUDED.shopify_updated_at IS NOT NULL
            AND (inventory_levels.shopify_updated_at IS NULL OR EXCLUDED.shopify_updated_at > inventory_levels.shopify_updated_at)`,
-        [lvl.inventory_item_id, lvl.location_id || null, lvl.available ?? null, updatedAt]
+        [lvl.inventory_item_id, lvl.location_id || null, lvl.available ?? null, updatedAt, updatedAt]
       );
     }
     await client.query('COMMIT');

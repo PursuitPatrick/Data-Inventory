@@ -9,6 +9,8 @@ const { loginUser } = require('./controllers/authController');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const { testConnection, initDatabase, getAllItems, addItem, updateItem, deleteItem, getCategories } = require('./db');
 const { syncAll, syncRecentOrders } = require('./services/shopifySyncService');
+const { pushAllLocalInventoryToShopify } = require('./services/inventoryPushService');
+const cron = require('node-cron');
 
 const app = express();
 const PORT = serverConfig.port;
@@ -17,8 +19,18 @@ const PORT = serverConfig.port;
 app.use(cors());
 // Mount raw-body webhook route BEFORE json parser
 app.use('/webhooks', require('./routes/shopifyWebhookRoutes'));
+// Mount additional Shopify webhook endpoints at /api/* BEFORE json parser
+app.use('/api', require('./routes/shopifyWebhookApiRoutes'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Global no-cache headers
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
 
 // Test endpoint
 app.get('/test', (req, res) => {
@@ -81,6 +93,9 @@ app.use('/api/inventory', require('./routes/inventoryRoutes'));
 
 // Shopify routes
 app.use('/api/shopify', require('./routes/shopifyRoutes'));
+
+// Shopify inventory fetch (raw from Shopify)
+app.use('/api', require('./routes/inventoryShopifyRoutes'));
 
 // Shopify routes (protected)
 app.use('/shopify', require('./routes/shopifyRoutes'));
@@ -182,6 +197,25 @@ app.listen(PORT, async () => {
     }
   } catch (err) {
     console.error('❌ Failed to start Shopify sync loop:', err?.message || err);
+  }
+
+  // Optional inventory push to Shopify every 5 minutes (enable with INVENTORY_PUSH_ENABLE=1)
+  try {
+    if (process.env.INVENTORY_PUSH_ENABLE === '1') {
+      const cronExpr = process.env.INVENTORY_PUSH_CRON || '*/5 * * * *';
+      cron.schedule(cronExpr, async () => {
+        try {
+          console.log('🔁 Inventory push running...');
+          const result = await pushAllLocalInventoryToShopify();
+          console.log('✅ Inventory push done:', JSON.stringify(result));
+        } catch (e) {
+          console.error('❌ Inventory push failed:', e?.message || e);
+        }
+      });
+      console.log(`⏱️ Inventory push scheduled with cron: ${cronExpr}`);
+    }
+  } catch (err) {
+    console.error('❌ Failed to schedule inventory push:', err?.message || err);
   }
 });
 

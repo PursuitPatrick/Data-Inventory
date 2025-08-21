@@ -15,15 +15,16 @@ if (!SHOP || !TOKEN || !PUBLIC_URL) {
 	process.exit(1);
 }
 
-const ADDRESS = `${PUBLIC_URL}/webhooks/shopify/webhooks`;
-const EVENTS = [
-	'inventory_levels/update',
-	'orders/create',
-	'orders/fulfilled',
-	'products/create',
-	'products/update',
-	'products/delete',
-];
+// Map topics to dedicated endpoints
+const TOPIC_TO_ADDRESS = new Map([
+	['orders/create', `${PUBLIC_URL}/api/orders`],
+	['inventory_levels/update', `${PUBLIC_URL}/api/inventory`],
+	['products/update', `${PUBLIC_URL}/api/products`],
+	// Other topics keep generic endpoint
+	['orders/fulfilled', `${PUBLIC_URL}/webhooks/shopify/webhooks`],
+	['products/create', `${PUBLIC_URL}/webhooks/shopify/webhooks`],
+	['products/delete', `${PUBLIC_URL}/webhooks/shopify/webhooks`],
+]);
 
 async function shopifyFetch(method, endpoint, body) {
 	const url = `https://${SHOP}/admin/api/${API_VERSION}/${endpoint}`;
@@ -76,7 +77,7 @@ async function ensureWebhook(topic, address, existing) {
 (async () => {
 	console.log('SHOP=', SHOP);
 	console.log('API_VERSION=', API_VERSION);
-	console.log('ADDRESS=', ADDRESS);
+	console.log('Registering webhooks for topics:', Array.from(TOPIC_TO_ADDRESS.keys()));
 
 	const list = await listWebhooks();
 	if (list.status !== 200) {
@@ -84,9 +85,9 @@ async function ensureWebhook(topic, address, existing) {
 		process.exit(2);
 	}
 	const existing = (list.data && list.data.webhooks) || [];
-	for (const topic of EVENTS) {
+	for (const [topic, address] of TOPIC_TO_ADDRESS.entries()) {
 		// eslint-disable-next-line no-await-in-loop
-		await ensureWebhook(topic, ADDRESS, existing);
+		await ensureWebhook(topic, address, existing);
 	}
 	console.log('Done.');
 })();
