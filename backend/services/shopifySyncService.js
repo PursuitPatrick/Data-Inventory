@@ -149,12 +149,100 @@ async function syncAll() {
   return { ...prod, ...loc, ...inv };
 }
 
-// Lightweight recent-orders sync for fulfillment tracking (read-only)
+// Sync recent orders and persist them to database
 async function syncRecentOrders() {
   const since = new Date(Date.now() - 1000 * 60 * 60).toISOString(); // last 60 minutes
   const ordersData = await shopify.getOrders({ updated_at_min: since });
-  // You can persist orders into a local table in a future iteration
-  return { ordersFetched: Array.isArray(ordersData?.orders) ? ordersData.orders.length : 0 };
+  const orders = Array.isArray(ordersData?.orders) ? ordersData.orders : [];
+
+  if (orders.length === 0) {
+    return { ordersFetched: 0, ordersUpserted: 0, note: 'No recent orders found in Shopify' };
+  }
+
+  const client = await pool.connect();
+  let ordersUpserted = 0;
+  
+  try {
+    await client.query('BEGIN');
+    
+    for (const order of orders) {
+      const createdAt = order.created_at ? new Date(order.created_at) : null;
+      const updatedAt = order.updated_at ? new Date(order.updated_at) : null;
+      const processedAt = order.processed_at ? new Date(order.processed_at) : null;
+      const cancelledAt = order.cancelled_at ? new Date(order.cancelled_at) : null;
+      
+      await client.query(
+        `INSERT INTO orders (
+          id, name, email, total_price, subtotal_price, total_tax, currency,
+          financial_status, fulfillment_status, order_number, created_at, updated_at,
+          processed_at, shopify_order_id, customer_id, note, tags, source_name,
+          gateway, test, cancelled_at, cancel_reason, shopify_updated_at,
+          last_synced_at, sync_status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, NOW(), 'synced')
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          email = EXCLUDED.email,
+          total_price = EXCLUDED.total_price,
+          subtotal_price = EXCLUDED.subtotal_price,
+          total_tax = EXCLUDED.total_tax,
+          currency = EXCLUDED.currency,
+          financial_status = EXCLUDED.financial_status,
+          fulfillment_status = EXCLUDED.fulfillment_status,
+          order_number = EXCLUDED.order_number,
+          created_at = EXCLUDED.created_at,
+          updated_at = EXCLUDED.updated_at,
+          processed_at = EXCLUDED.processed_at,
+          customer_id = EXCLUDED.customer_id,
+          note = EXCLUDED.note,
+          tags = EXCLUDED.tags,
+          source_name = EXCLUDED.source_name,
+          gateway = EXCLUDED.gateway,
+          test = EXCLUDED.test,
+          cancelled_at = EXCLUDED.cancelled_at,
+          cancel_reason = EXCLUDED.cancel_reason,
+          shopify_updated_at = EXCLUDED.shopify_updated_at,
+          last_synced_at = NOW(),
+          sync_status = 'synced'
+        WHERE EXCLUDED.shopify_updated_at IS NOT NULL
+          AND (orders.shopify_updated_at IS NULL OR EXCLUDED.shopify_updated_at > orders.shopify_updated_at)`,
+        [
+          order.id,
+          order.name || null,
+          order.email || null,
+          order.total_price ? parseFloat(order.total_price) : null,
+          order.subtotal_price ? parseFloat(order.subtotal_price) : null,
+          order.total_tax ? parseFloat(order.total_tax) : null,
+          order.currency || null,
+          order.financial_status || null,
+          order.fulfillment_status || null,
+          order.order_number || null,
+          createdAt,
+          updatedAt,
+          processedAt,
+          order.id, // shopify_order_id same as id
+          order.customer?.id || null,
+          order.note || null,
+          order.tags || null,
+          order.source_name || null,
+          order.gateway || null,
+          order.test || false,
+          cancelledAt,
+          order.cancel_reason || null,
+          updatedAt // shopify_updated_at
+        ]
+      );
+      ordersUpserted++;
+    }
+    
+    await client.query('COMMIT');
+    return { ordersFetched: orders.length, ordersUpserted };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 module.exports = {

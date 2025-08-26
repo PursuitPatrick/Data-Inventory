@@ -167,6 +167,56 @@ const initDatabase = async () => {
       )
     `);
 
+    // Create Shopify orders table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id BIGINT PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        total_price DECIMAL(10,2),
+        subtotal_price DECIMAL(10,2),
+        total_tax DECIMAL(10,2),
+        currency TEXT,
+        financial_status TEXT,
+        fulfillment_status TEXT,
+        order_number INTEGER,
+        created_at TIMESTAMPTZ,
+        updated_at TIMESTAMPTZ,
+        processed_at TIMESTAMPTZ,
+        shopify_order_id BIGINT,
+        customer_id BIGINT,
+        note TEXT,
+        tags TEXT,
+        source_name TEXT,
+        gateway TEXT,
+        test BOOLEAN DEFAULT FALSE,
+        cancelled_at TIMESTAMPTZ,
+        cancel_reason TEXT,
+        shopify_updated_at TIMESTAMPTZ,
+        local_updated_at TIMESTAMPTZ,
+        last_synced_at TIMESTAMPTZ,
+        sync_status TEXT DEFAULT 'synced',
+        source_of_truth TEXT DEFAULT 'shopify'
+      )
+    `);
+
+    // Add helpful indexes for orders
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_shopify_updated_at ON orders (shopify_updated_at)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders (customer_id)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_financial_status ON orders (financial_status)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_orders_fulfillment_status ON orders (fulfillment_status)
+    `);
+
     // Append-only audit trail for inventory movements
     await client.query(`
       CREATE TABLE IF NOT EXISTS inventory_movements (
