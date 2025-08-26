@@ -5,6 +5,11 @@ async function syncProducts() {
   const data = await shopify.getProducts();
   const products = Array.isArray(data?.products) ? data.products : [];
 
+  // Skip early if store has no products
+  if (products.length === 0) {
+    return { productsUpserted: 0, note: 'No products found in Shopify. Skipping sync.' };
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -56,6 +61,11 @@ async function syncInventoryLevels() {
       // eslint-disable-next-line no-continue
       continue;
     }
+  }
+
+  // Skip early if there are no levels across all locations
+  if (levelsAll.length === 0) {
+    return { inventoryLevelsUpserted: 0, note: 'No inventory levels found in Shopify. Skipping sync.' };
   }
 
   // Schema has primary key on inventory_item_id only. Collapse multiple locations per item

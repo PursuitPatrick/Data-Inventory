@@ -1,7 +1,7 @@
 /*
  Probes public tunnel /health and sends a signed webhook POST to /webhooks/shopify/webhooks.
  Usage: node backend/testWebhookTunnel.js <PUBLIC_URL>
- If PUBLIC_URL is omitted, it will try to read from .tunnel-url in project root.
+ PUBLIC_URL must be provided explicitly or via BACKEND_PUBLIC_URL env var.
 */
 
 const fs = require('fs');
@@ -11,14 +11,7 @@ const crypto = require('crypto');
 
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
-function readPublicUrlFromFile() {
-  const filePath = path.resolve(process.cwd(), '.tunnel-url');
-  try {
-    return fs.readFileSync(filePath, 'utf8').trim();
-  } catch (_) {
-    return '';
-  }
-}
+// No longer reads from .tunnel-url to avoid accidentally persisting tunnels
 
 async function httpGet(url) {
   return new Promise((resolve, reject) => {
@@ -45,10 +38,9 @@ async function httpPost(url, headers, payload) {
 
 async function main() {
   const provided = (process.argv[2] || '').trim().replace(/\/$/, '');
-  const fromFile = readPublicUrlFromFile();
-  const base = (provided || fromFile || process.env.BACKEND_PUBLIC_URL || '').replace(/\/$/, '');
+  const base = (provided || process.env.BACKEND_PUBLIC_URL || '').replace(/\/$/, '');
   if (!base) {
-    console.error('No PUBLIC_URL provided or found (.tunnel-url/BACKEND_PUBLIC_URL)');
+    console.error('No PUBLIC_URL provided or found (BACKEND_PUBLIC_URL)');
     process.exit(2);
   }
   console.log('PUBLIC_URL=', base);

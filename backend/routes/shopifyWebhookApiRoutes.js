@@ -64,6 +64,21 @@ router.post('/orders', express.raw({ type: 'application/json' }), (req, res) => 
 router.post('/inventory', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'inventory_levels/update'));
 router.post('/products', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'products/update'));
 
+// New: orders/updated (POST /api/orders/updated)
+router.post('/orders/updated', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'orders/updated'));
+
+// New: orders/cancelled (POST /api/orders/cancelled)
+router.post('/orders/cancelled', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'orders/cancelled'));
+
+// New: fulfillments/create (POST /api/fulfillments/create)
+router.post('/fulfillments/create', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'fulfillments/create'));
+
+// New: fulfillments/update (POST /api/fulfillments/update)
+router.post('/fulfillments/update', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'fulfillments/update'));
+
+// New: app/uninstalled (POST /api/app/uninstalled)
+router.post('/app/uninstalled', express.raw({ type: 'application/json' }), (req, res) => handleWebhook(req, res, 'app/uninstalled'));
+
 module.exports = router;
 
 

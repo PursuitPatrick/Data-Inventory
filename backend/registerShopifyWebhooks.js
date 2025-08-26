@@ -18,6 +18,11 @@ if (!SHOP || !TOKEN || !PUBLIC_URL) {
 // Map topics to dedicated endpoints
 const TOPIC_TO_ADDRESS = new Map([
 	['orders/create', `${PUBLIC_URL}/api/orders`],
+	['orders/updated', `${PUBLIC_URL}/api/orders/updated`],
+	['orders/cancelled', `${PUBLIC_URL}/api/orders/cancelled`],
+	['fulfillments/create', `${PUBLIC_URL}/api/fulfillments/create`],
+	['fulfillments/update', `${PUBLIC_URL}/api/fulfillments/update`],
+	['app/uninstalled', `${PUBLIC_URL}/api/app/uninstalled`],
 	['inventory_levels/update', `${PUBLIC_URL}/api/inventory`],
 	['products/update', `${PUBLIC_URL}/api/products`],
 	// Other topics keep generic endpoint
