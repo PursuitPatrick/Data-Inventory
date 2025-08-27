@@ -2,7 +2,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 const { testConnection, initDatabase } = require('./db');
-const { syncAll, syncProducts, syncInventoryLevels, syncLocations } = require('./services/shopifySyncService');
+const { syncAll, syncProducts, syncInventoryLevels, syncLocations, syncRecentOrders } = require('./services/shopifySyncService');
 
 async function main() {
   const cmd = (process.argv[2] || 'all').toLowerCase();
@@ -37,6 +37,9 @@ async function main() {
       case 'inventory-levels':
       case 'inventory_levels':
         result = await syncInventoryLevels();
+        break;
+      case 'orders':
+        result = await syncRecentOrders();
         break;
       case 'all':
       default:
