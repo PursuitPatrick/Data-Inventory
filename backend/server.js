@@ -7,7 +7,7 @@ const { serverConfig, dbConfig } = require('./config');
 const { getAllInventory, getInventoryItem, updateInventoryItem, deleteInventoryItem, createInventoryItem } = require('./controllers/inventoryController');
 const { loginUser } = require('./controllers/authController');
 const { authenticateToken } = require('./middleware/authMiddleware');
-const { testConnection, initDatabase, getAllItems, addItem, updateItem, deleteItem, getCategories } = require('./db');
+const { pool, testConnection, initDatabase, getAllItems, addItem, updateItem, deleteItem, getCategories } = require('./db');
 const { syncAll, syncRecentOrders } = require('./services/shopifySyncService');
 const { pushAllLocalInventoryToShopify } = require('./services/inventoryPushService');
 const cron = require('node-cron');
@@ -52,6 +52,41 @@ app.get('/db-test', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ status: 'Error', message: error.message });
+  }
+});
+
+// Simple diagnostics: recent products and orders + totals
+app.get('/products-test', async (req, res) => {
+  try {
+    const [rowsResult, countResult] = await Promise.all([
+      pool.query(`
+        SELECT id, title, handle, updated_at
+        FROM products
+        ORDER BY updated_at DESC NULLS LAST
+        LIMIT 5
+      `),
+      pool.query('SELECT COUNT(*)::int AS count FROM products'),
+    ]);
+    res.json({ total: countResult.rows[0].count, recent: rowsResult.rows });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/orders-test', async (req, res) => {
+  try {
+    const [rowsResult, countResult] = await Promise.all([
+      pool.query(`
+        SELECT id AS shopify_order_id, name, total_price, financial_status, created_at
+        FROM orders
+        ORDER BY created_at DESC NULLS LAST
+        LIMIT 5
+      `),
+      pool.query('SELECT COUNT(*)::int AS count FROM orders'),
+    ]);
+    res.json({ total: countResult.rows[0].count, recent: rowsResult.rows });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -135,31 +170,25 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({ message });
 });
 
-// Start server
-app.listen(PORT, async () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-  console.log(`📝 Test endpoint: http://localhost:${PORT}/test`);
-  console.log(`💚 Health check: http://localhost:${PORT}/health`);
-  console.log(`🗄️ Database test: http://localhost:${PORT}/db-test`);
+// Start server only after a successful DB connection
+(async () => {
   // Log non-sensitive env-driven config to confirm .env is loaded
-  console.log(
-    `Env loaded: PORT=${PORT}, NODE_ENV=${serverConfig.nodeEnv}, DB host=${dbConfig.host}, port=${dbConfig.port}, db=${dbConfig.database}, user=${dbConfig.user}`
-  );
-  
-  // Test database connection and initialize tables
+  console.log(`Env loaded: PORT=${PORT}, NODE_ENV=${serverConfig.nodeEnv}, DB host=${dbConfig.host}, port=${dbConfig.port}, db=${dbConfig.database}, user=${dbConfig.user}`);
+
+  console.log('🔌 Testing database connection...');
+  const isConnected = await testConnection();
+  if (!isConnected) {
+    console.error('❌ Database connection failed. Please check your PostgreSQL setup. Exiting.');
+    process.exit(1);
+  }
+
   try {
-    console.log('🔌 Testing database connection...');
-    const isConnected = await testConnection();
-    
-    if (isConnected) {
-      console.log('📊 Initializing database tables...');
-      await initDatabase();
-      console.log('✅ Database setup complete!');
-    } else {
-      console.log('❌ Database connection failed. Please check your PostgreSQL setup.');
-    }
+    console.log('📊 Initializing database tables...');
+    await initDatabase();
+    console.log('✅ Database setup complete!');
   } catch (error) {
     console.error('❌ Database initialization error:', error.message);
+    process.exit(1);
   }
 
   // Optional Shopify background sync loops (enable by setting SHOPIFY_SYNC_ENABLE=1)
@@ -217,6 +246,13 @@ app.listen(PORT, async () => {
   } catch (err) {
     console.error('❌ Failed to schedule inventory push:', err?.message || err);
   }
-});
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+    console.log(`📝 Test endpoint: http://localhost:${PORT}/test`);
+    console.log(`💚 Health check: http://localhost:${PORT}/health`);
+    console.log(`🗄️ Database test: http://localhost:${PORT}/db-test`);
+  });
+})();
 
 module.exports = app; 

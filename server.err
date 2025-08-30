@@ -48,3 +48,13 @@ Error fetching products.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
 ❌ Products sync failed: getaddrinfo ENOTFOUND magminventory.myshopify.com
 Error fetching locations.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
 Error fetching locations.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching products.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
+❌ Inventory sync failed: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching orders.json?status=any&limit=50&order=updated_at+desc&updated_at_min=2025-08-28T00%3A02%3A02.147Z: getaddrinfo ENOTFOUND magminventory.myshopify.com
+❌ Orders sync failed: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching locations.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching locations.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching products.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
+❌ Products sync failed: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching locations.json: getaddrinfo ENOTFOUND magminventory.myshopify.com
+Error fetching locations.json: getaddrinfo ENOTFOUND magminventory.myshopify.com

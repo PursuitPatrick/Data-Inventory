@@ -5,22 +5,33 @@ const { dbConfig } = require('./config');
 // Create a connection pool
 const pool = new Pool(dbConfig);
 
-// Test the database connection
-const testConnection = async () => {
-  try {
-    const client = await pool.connect();
-    console.log('✅ Successfully connected to PostgreSQL database');
-    
-    // Test query
-    const result = await client.query('SELECT NOW()');
-    console.log('📅 Database time:', result.rows[0].now);
-    
-    client.release();
-    return true;
-  } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
-    return false;
+// Test the database connection with simple retry logic
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const testConnection = async (
+  retries = Number.parseInt(process.env.DB_CONNECT_RETRIES || '5', 10),
+  delayMs = Number.parseInt(process.env.DB_CONNECT_DELAY_MS || '5000', 10)
+) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const client = await pool.connect();
+      console.log('✅ Successfully connected to PostgreSQL database');
+
+      // Test query
+      const result = await client.query('SELECT NOW()');
+      console.log('📅 Database time:', result.rows[0].now);
+
+      client.release();
+      return true;
+    } catch (error) {
+      console.error(`❌ Database connection failed (attempt ${attempt}/${retries}):`, error.message);
+      if (attempt < retries) {
+        console.log(`⏳ Retrying in ${Math.ceil(delayMs / 1000)}s...`);
+        await sleep(delayMs);
+      }
+    }
   }
+  return false;
 };
 
 // Initialize database tables
