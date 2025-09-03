@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
 import { Package, Truck, Ship, TrendingUp, Clock, User, FileText } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../components/StatCard'
@@ -18,7 +17,6 @@ const mapActivityType = (type, title='') => {
 }
 
 const Dashboard = () => {
-  const navigate = useNavigate()
   const navigate = useNavigate()
   const SHOPIFY_STORE = import.meta.env.VITE_SHOPIFY_STORE || ''
   const shopifyStoreSlug = SHOPIFY_STORE
