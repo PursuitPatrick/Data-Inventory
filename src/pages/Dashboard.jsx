@@ -51,7 +51,7 @@ const Dashboard = () => {
   }
 
   const handleInboundBarClick = () => {
-    navigate('/receiving')
+    navigate('/receiving/manage-pos')
   }
 
   useEffect(() => {

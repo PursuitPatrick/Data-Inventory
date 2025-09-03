@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, Download, Plus } from 'lucide-react'
 import { formatDateWithDay } from '../utils/dateUtils'
 
@@ -165,10 +165,34 @@ const mockPOs = [
 
 const ManagePOs = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState('Expected')
   const [recordsPerPage, setRecordsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedDateFromQuery, setSelectedDateFromQuery] = useState('')
+
+  // Initialize from query params: ?status=<on_hold|expected|arrived|rework|in_process|received>&date=YYYY-MM-DD
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const rawStatus = String(params.get('status') || '').toLowerCase()
+    const dateParam = String(params.get('date') || '')
+
+    const statusMap = {
+      on_hold: 'On Hold',
+      expected: 'Expected',
+      arrived: 'Arrived',
+      rework: 'Rework',
+      in_process: 'In Process',
+      received: 'Received',
+    }
+    if (statusMap[rawStatus]) {
+      setActiveTab(statusMap[rawStatus])
+    }
+    if (dateParam) {
+      setSelectedDateFromQuery(dateParam)
+    }
+  }, [location.search])
 
   const tabs = [
     { id: 'On Hold', label: 'On Hold' },
@@ -295,6 +319,9 @@ const ManagePOs = () => {
           <div className="text-sm text-gray-500">
             Showing {getPaginatedPOs().length} of {getFilteredPOs().length} purchase orders
           </div>
+          {selectedDateFromQuery ? (
+            <div className="text-xs text-gray-500">Date: {selectedDateFromQuery}</div>
+          ) : null}
           <div className="flex items-center space-x-2">
             <button 
               onClick={exportToCSV}
