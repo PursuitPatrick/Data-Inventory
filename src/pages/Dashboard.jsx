@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Package, Truck, Ship, TrendingUp, Clock, User, FileText } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../components/StatCard'
@@ -16,6 +17,12 @@ const mapActivityType = (type, title='') => {
 }
 
 const Dashboard = () => {
+  const navigate = useNavigate()
+  const SHOPIFY_STORE = import.meta.env.VITE_SHOPIFY_STORE || ''
+  const shopifyStoreSlug = SHOPIFY_STORE
+    .replace(/^https?:\/\//, '')
+    .replace(/\.myshopify\.com$/, '')
+    .replace(/\/$/, '')
   const [selectedPeriod, setSelectedPeriod] = useState('week')
   const [productsDate, setProductsDate] = useState(new Date().toISOString().split('T')[0])
   const [inboundDate, setInboundDate] = useState(new Date().toISOString().split('T')[0])
@@ -313,8 +320,24 @@ const Dashboard = () => {
               {outOfStock.map((it) => (
                 <div key={`${it.inventory_item_id}`} className="flex items-center justify-between text-sm bg-gray-50 rounded-md px-2 py-1">
                   <div className="truncate mr-2">
-                    <span className="font-medium text-gray-800 mr-2">{it.sku || '—'}</span>
-                    <span className="text-gray-600 truncate">{it.variant_title || 'Variant'}</span>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/products/details/${encodeURIComponent(it.sku || it.product_id || it.inventory_item_id)}`)}
+                      className="font-medium text-primary-600 hover:underline mr-2"
+                    >
+                      {it.sku || '—'}
+                    </button>
+                    <span className="text-gray-600 truncate mr-2">{it.variant_title || 'Variant'}</span>
+                    {shopifyStoreSlug && it.product_id ? (
+                      <a
+                        href={`https://admin.shopify.com/store/${shopifyStoreSlug}/products/${it.product_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-gray-500 hover:underline"
+                      >
+                        Open in Shopify
+                      </a>
+                    ) : null}
                   </div>
                   <span className="text-red-600 font-semibold">0</span>
                 </div>
