@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [productsData, setProductsData] = useState([])
   const [inboundData, setInboundData] = useState([])
   const [warehouseData, setWarehouseData] = useState([])
+  const [outOfStock, setOutOfStock] = useState([])
   const [outboundData, setOutboundData] = useState([])
   const [reworkData, setReworkData] = useState([])
   const [supportData, setSupportData] = useState([])
@@ -52,6 +53,8 @@ const Dashboard = () => {
           { label: 'Low Stock', count: w.lowStock || 0, color: 'text-yellow-600' },
           { label: 'Out Of Stock', count: w.outOfStock || 0, color: 'text-red-600' },
         ])
+        const list = await api('/api/summary/out-of-stock?limit=100')
+        setOutOfStock(Array.isArray(list) ? list : [])
       } catch {}
     }
 
@@ -293,13 +296,31 @@ const Dashboard = () => {
       {/* Warehouse Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <h3 className="text-base font-medium text-gray-900 mb-3">Warehouse</h3>
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 gap-2 mb-3">
           {warehouseData.map((item, index) => (
             <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
               <span className="text-sm font-medium text-gray-700">{item.label}</span>
               <span className={`text-base font-bold ${item.color}`}>{item.count}</span>
             </div>
           ))}
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-800 mb-2">Out of stock ({outOfStock.length})</h4>
+          {outOfStock.length === 0 ? (
+            <p className="text-sm text-gray-500">No items are out of stock.</p>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-auto pr-1">
+              {outOfStock.map((it) => (
+                <div key={`${it.inventory_item_id}`} className="flex items-center justify-between text-sm bg-gray-50 rounded-md px-2 py-1">
+                  <div className="truncate mr-2">
+                    <span className="font-medium text-gray-800 mr-2">{it.sku || '—'}</span>
+                    <span className="text-gray-600 truncate">{it.variant_title || 'Variant'}</span>
+                  </div>
+                  <span className="text-red-600 font-semibold">0</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
