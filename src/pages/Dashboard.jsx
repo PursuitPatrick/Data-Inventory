@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Package, Truck, Ship, TrendingUp, Clock, User, FileText } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../components/StatCard'
@@ -17,6 +18,7 @@ const mapActivityType = (type, title='') => {
 }
 
 const Dashboard = () => {
+  const navigate = useNavigate()
   const navigate = useNavigate()
   const SHOPIFY_STORE = import.meta.env.VITE_SHOPIFY_STORE || ''
   const shopifyStoreSlug = SHOPIFY_STORE
@@ -350,7 +352,12 @@ const Dashboard = () => {
       {/* Metric Boxes Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Outbound Box */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:bg-gray-50"
+          onClick={() => navigate('/shipping')}
+          title="Open Outbound"
+          role="button"
+        >
           <h3 className="text-lg font-bold text-gray-900 mb-4">Outbound</h3>
           <div className="space-y-3">
             {outboundData.map((item, index) => (
@@ -363,7 +370,12 @@ const Dashboard = () => {
         </div>
 
         {/* Rework Box */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:bg-gray-50"
+          onClick={() => navigate('/rework')}
+          title="Open Rework"
+          role="button"
+        >
           <h3 className="text-lg font-bold text-gray-900 mb-4">Rework</h3>
           <div className="space-y-3">
             {reworkData.map((item, index) => (
