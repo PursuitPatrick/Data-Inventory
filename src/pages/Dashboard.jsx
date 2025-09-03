@@ -1,143 +1,135 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Package, Truck, Ship, TrendingUp, Clock, User, FileText } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../components/StatCard'
 import TimeZoneDisplay from '../components/TimeZoneDisplay'
 import { formatDateTime } from '../utils/dateUtils'
+import { api } from '../api/client'
 
-// Mock data - replace with actual API calls
-const mockStats = [
-  {
-    title: 'Total Inventory',
-    value: '12,847',
-    change: '+12%',
-    changeType: 'increase',
-    icon: Package,
-    color: 'primary'
-  },
-  {
-    title: 'Incoming Items',
-    value: '156',
-    change: '+8%',
-    changeType: 'increase',
-    icon: Truck,
-    color: 'success'
-  },
-  {
-    title: 'Outgoing Items',
-    value: '89',
-    change: '-3%',
-    changeType: 'decrease',
-    icon: Ship,
-    color: 'warning'
-  },
-  {
-    title: 'Items in Transit',
-    value: '23',
-    change: '+15%',
-    changeType: 'increase',
-    icon: TrendingUp,
-    color: 'primary'
-  }
-]
+const numberFmt = (n) => new Intl.NumberFormat().format(Number(n || 0))
 
-const mockActivity = [
-  {
-    id: 1,
-    type: 'received',
-    message: 'Received 50 units of Steel Pipes from ABC Suppliers',
-    user: 'John Smith',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-    icon: Truck
-  },
-  {
-    id: 2,
-    type: 'shipped',
-    message: 'Shipped 25 units of Circuit Boards to TechCorp',
-    user: 'Sarah Johnson',
-    timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-    icon: Ship
-  },
-  {
-    id: 3,
-    type: 'updated',
-    message: 'Updated inventory levels for Warehouse Zone A',
-    user: 'Mike Wilson',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    icon: Package
-  },
-  {
-    id: 4,
-    type: 'received',
-    message: 'Received 100 units of LED Panels from XYZ Electronics',
-    user: 'Lisa Chen',
-    timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-    icon: Truck
-  },
-  {
-    id: 5,
-    type: 'shipped',
-    message: 'Shipped 75 units of Sensors to AutoParts Inc',
-    user: 'David Brown',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-    icon: Ship
-  }
-]
+const mapActivityType = (type, title='') => {
+  const t = String(type || '').toLowerCase()
+  if (t.includes('inbound') || t.includes('receive')) return 'received'
+  if (t.includes('outbound') || t.includes('ship')) return 'shipped'
+  return 'updated'
+}
 
 const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
   const [productsDate, setProductsDate] = useState(new Date().toISOString().split('T')[0])
   const [inboundDate, setInboundDate] = useState(new Date().toISOString().split('T')[0])
 
-  // Mock data for Products chart - TODO: Replace with AI/dynamic data based on selected date
-  const productsData = [
-    { name: 'On Hold', value: 45 },
-    { name: 'Active', value: 128 },
-    { name: 'Inactive', value: 23 },
-    { name: 'ALL SKU\'s', value: 196 }
-  ]
+  const [stats, setStats] = useState([])
+  const [productsData, setProductsData] = useState([])
+  const [inboundData, setInboundData] = useState([])
+  const [warehouseData, setWarehouseData] = useState([])
+  const [outboundData, setOutboundData] = useState([])
+  const [reworkData, setReworkData] = useState([])
+  const [supportData, setSupportData] = useState([])
+  const [activityItems, setActivityItems] = useState([])
 
-  // Mock data for Inbound chart - TODO: Replace with AI/dynamic data based on selected date
-  const inboundData = [
-    { name: 'On Hold', value: 12 },
-    { name: 'Expected', value: 67 },
-    { name: 'Rework', value: 8 },
-    { name: 'In Process', value: 34 }
-  ]
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const d = await api('/api/summary/dashboard')
+        const cards = [
+          { title: 'Total Inventory', value: numberFmt(d.totalInventory?.value), change: d.totalInventory?.pctFromLastMonth != null ? `${Math.round(d.totalInventory.pctFromLastMonth)}%` : '—', changeType: (d.totalInventory?.pctFromLastMonth || 0) >= 0 ? 'increase' : 'decrease', icon: Package, color: 'primary' },
+          { title: 'Incoming Items', value: numberFmt(d.incomingItems?.value), change: '+', changeType: 'increase', icon: Truck, color: 'success' },
+          { title: 'Outgoing Items', value: numberFmt(d.outgoingItems?.value), change: '+', changeType: 'increase', icon: Ship, color: 'warning' },
+          { title: 'Items in Transit', value: numberFmt(d.itemsInTransit?.value), change: '+', changeType: 'increase', icon: TrendingUp, color: 'primary' },
+        ]
+        setStats(cards)
+      } catch {}
+    }
 
-  // Mock data for Warehouse section - TODO: Replace with AI/live warehouse data
-  const warehouseData = [
-    { label: 'All Boxes', count: 180, color: 'text-gray-700' },
-    { label: 'In Stock', count: 120, color: 'text-green-600' },
-    { label: 'Low Stock', count: 40, color: 'text-yellow-600' },
-    { label: 'Out Of Stock', count: 20, color: 'text-red-600' }
-  ]
+    const loadWarehouse = async () => {
+      try {
+        const w = await api('/api/summary/warehouse?lowThreshold=5')
+        setWarehouseData([
+          { label: 'All Boxes', count: w.allBoxes || 0, color: 'text-gray-700' },
+          { label: 'In Stock', count: w.inStock || 0, color: 'text-green-600' },
+          { label: 'Low Stock', count: w.lowStock || 0, color: 'text-yellow-600' },
+          { label: 'Out Of Stock', count: w.outOfStock || 0, color: 'text-red-600' },
+        ])
+      } catch {}
+    }
 
-  // Mock data for metric boxes - TODO: Replace with AI/dynamic data
-  const outboundData = [
-    { label: 'On Hold', count: 12, color: 'text-yellow-600' },
-    { label: 'Pending', count: 8, color: 'text-orange-600' },
-    { label: 'Inbox', count: 25, color: 'text-blue-600' },
-    { label: 'In Process', count: 15, color: 'text-blue-600' },
-    { label: 'Routing', count: 5, color: 'text-purple-600' },
-    { label: 'Ready', count: 32, color: 'text-green-600' }
-  ]
+    const loadActivity = async () => {
+      try {
+        const res = await api('/api/admin/activity?limit=5')
+        const items = (res.items || []).map(x => ({
+          id: x.id,
+          type: mapActivityType(x.type, x.title),
+          message: x.title || x.details || 'Activity',
+          user: x.actor || '—',
+          timestamp: new Date(x.occurred_at),
+        }))
+        setActivityItems(items)
+      } catch {}
+    }
 
-  const reworkData = [
-    { label: 'On Hold', count: 3, color: 'text-yellow-600' },
-    { label: 'Pending', count: 7, color: 'text-orange-600' },
-    { label: 'Inbox', count: 12, color: 'text-blue-600' },
-    { label: 'In Process', count: 9, color: 'text-blue-600' },
-    { label: 'Ready', count: 18, color: 'text-green-600' }
-  ]
+    loadDashboard()
+    loadWarehouse()
+    loadActivity()
+  }, [])
 
-  const supportData = [
-    { label: 'On Hold', count: 5, color: 'text-yellow-600' },
-    { label: 'Pending', count: 11, color: 'text-orange-600' },
-    { label: 'Inbox', count: 8, color: 'text-blue-600' },
-    { label: 'In Process', count: 14, color: 'text-blue-600' },
-    { label: 'Ready', count: 22, color: 'text-green-600' }
-  ]
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const p = await api('/api/summary/products-by-status')
+        const active = Number(p.active || 0)
+        const inactive = Number(p.inactive || 0)
+        const onHold = Number(p.on_hold || 0)
+        const all = active + inactive + onHold + Number(p.unknown || 0)
+        setProductsData([
+          { name: 'On Hold', value: onHold },
+          { name: 'Active', value: active },
+          { name: 'Inactive', value: inactive },
+          { name: "ALL SKU's", value: all },
+        ])
+      } catch {}
+    }
+    loadProducts()
+  }, [productsDate])
+
+  useEffect(() => {
+    const mapByStatus = (rows, labels) => {
+      const m = Object.fromEntries((rows || []).map(r => [String(r.status || '').toLowerCase(), Number(r.count || 0)]))
+      return labels.map(label => ({ name: label, value: m[label.toLowerCase()] || 0 }))
+    }
+    const loadInbound = async () => {
+      try {
+        const rows = await api(`/api/inbound/summary?date=${inboundDate}`)
+        setInboundData(mapByStatus(rows, ['On Hold','Expected','Rework','In Process']))
+      } catch {}
+    }
+    const loadOutbound = async () => {
+      try {
+        const rows = await api('/api/outbound/summary')
+        const mapped = (rows || []).map(r => ({ label: r.status || 'unknown', count: Number(r.count || 0), color: 'text-blue-600' }))
+        setOutboundData(mapped)
+      } catch {}
+    }
+    const loadRework = async () => {
+      try {
+        const rows = await api('/api/rework/summary')
+        const mapped = (rows || []).map(r => ({ label: r.status || 'unknown', count: Number(r.count || 0), color: 'text-blue-600' }))
+        setReworkData(mapped)
+      } catch {}
+    }
+    const loadSupport = async () => {
+      try {
+        const rows = await api('/api/support/summary')
+        const mapped = (rows || []).map(r => ({ label: r.status || 'unknown', count: Number(r.count || 0), color: 'text-blue-600' }))
+        setSupportData(mapped)
+      } catch {}
+    }
+    loadInbound()
+    loadOutbound()
+    loadRework()
+    loadSupport()
+  }, [inboundDate])
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -192,7 +184,7 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {mockStats.map((stat, index) => (
+        {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
       </div>
@@ -362,7 +354,7 @@ const Dashboard = () => {
           </button>
         </div>
         <div className="space-y-4">
-          {mockActivity.map((activity) => (
+          {activityItems.map((activity) => (
             <div
               key={activity.id}
               className={`p-3 rounded-lg border ${getActivityColor(activity.type)}`}
@@ -377,9 +369,7 @@ const Dashboard = () => {
                     <User className="w-3 h-3 text-gray-400" />
                     <span className="text-xs text-gray-500">{activity.user}</span>
                     <span className="text-xs text-gray-400">•</span>
-                                                   <span className="text-xs text-gray-500">
-                                 {formatDateTime(activity.timestamp)}
-                               </span>
+                    <span className="text-xs text-gray-500">{formatDateTime(activity.timestamp)}</span>
                   </div>
                 </div>
               </div>
