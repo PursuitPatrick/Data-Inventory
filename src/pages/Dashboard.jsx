@@ -50,11 +50,8 @@ const Dashboard = () => {
     }
   }
 
-  const handleInboundBarClick = (entry) => {
-    if (!entry || !entry.activeLabel) return
-    const status = encodeURIComponent(entry.activeLabel)
-    const date = encodeURIComponent(inboundDate)
-    navigate(`/receiving?status=${status}&date=${date}`)
+  const handleInboundBarClick = () => {
+    navigate('/receiving')
   }
 
   useEffect(() => {
