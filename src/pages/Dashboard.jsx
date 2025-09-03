@@ -37,6 +37,26 @@ const Dashboard = () => {
   const [supportData, setSupportData] = useState([])
   const [activityItems, setActivityItems] = useState([])
 
+  // Handlers to navigate when clicking bars
+  const handleProductsBarClick = (entry) => {
+    if (!entry || !entry.activeLabel) return
+    const label = String(entry.activeLabel).toLowerCase()
+    if (label.includes('active')) {
+      navigate('/inventory/products?status=active')
+    } else if (label.includes('inactive')) {
+      navigate('/inventory/products?status=inactive')
+    } else if (label.includes('hold')) {
+      navigate('/inventory/products?hold=1')
+    }
+  }
+
+  const handleInboundBarClick = (entry) => {
+    if (!entry || !entry.activeLabel) return
+    const status = encodeURIComponent(entry.activeLabel)
+    const date = encodeURIComponent(inboundDate)
+    navigate(`/receiving?status=${status}&date=${date}`)
+  }
+
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -217,7 +237,7 @@ const Dashboard = () => {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={productsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={productsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} onClick={handleProductsBarClick}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
                   dataKey="name" 
@@ -266,7 +286,7 @@ const Dashboard = () => {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={inboundData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={inboundData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} onClick={handleInboundBarClick}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
                   dataKey="name" 
