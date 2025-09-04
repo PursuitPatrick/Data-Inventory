@@ -46,12 +46,26 @@ function verifyRefreshToken(token) {
 // Optional Express handler for refresh flow
 async function refreshTokenHandler(req, res) {
   try {
-    const { refreshToken } = req.body || {};
-    if (!refreshToken) {
-      return res.status(400).json({ message: 'refreshToken is required' });
+    // Pull refresh token from secure cookie
+    const tokenFromCookie = req.cookies?.refreshToken;
+    if (!tokenFromCookie) {
+      return res.status(401).json({ message: 'No refresh token' });
     }
-    const decoded = verifyRefreshToken(refreshToken);
+    const decoded = verifyRefreshToken(tokenFromCookie);
     const newToken = generateToken({ id: decoded.id, username: decoded.username });
+    const newRefresh = generateRefreshToken({ id: decoded.id, username: decoded.username });
+
+    // Rotate cookie
+    const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+    res.cookie('refreshToken', newRefresh, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      domain: cookieDomain,
+      path: '/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({ token: newToken });
   } catch (err) {
     const message = err?.name === 'TokenExpiredError' ? 'Refresh token expired. Please log in again.' : 'Invalid refresh token';

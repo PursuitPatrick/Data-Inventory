@@ -23,9 +23,29 @@ export async function api(path, options = {}) {
     method: method || (body ? 'POST' : 'GET'),
     headers: buildHeaders(headers),
     body: typeof body === 'string' || body == null ? body : JSON.stringify(body),
+    credentials: 'include',
     ...rest,
   };
-  const res = await fetch(`${API_URL}${path}`, final);
+  let res = await fetch(`${API_URL}${path}`, final);
+  if (res.status === 401 && path !== '/auth/refresh') {
+    // Try refresh once
+    try {
+      const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (refreshRes.ok) {
+        const data = await refreshRes.json();
+        if (data?.token) {
+          localStorage.setItem('TOKEN', data.token);
+          // retry original request with new token
+          final.headers = buildHeaders(headers);
+          res = await fetch(`${API_URL}${path}`, final);
+        }
+      }
+    } catch (_) {}
+  }
   return handleResponse(res);
 }
 

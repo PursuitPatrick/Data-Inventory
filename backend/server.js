@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 // Load environment variables from project root .env before loading config
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
@@ -16,7 +17,21 @@ const app = express();
 const PORT = serverConfig.port;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'https://magminventory.netlify.app',
+  /^https:\/\/deploy-preview-\d+--magminventory\.netlify\.app$/
+];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    const ok = allowedOrigins.some((o) =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+    return cb(ok ? null : new Error('CORS: origin not allowed'), ok);
+  },
+  credentials: true,
+}));
+app.use(cookieParser());
 // Mount raw-body webhook route BEFORE json parser
 app.use('/webhooks', require('./routes/shopifyWebhookRoutes'));
 // Mount additional Shopify webhook endpoints at /api/* BEFORE json parser

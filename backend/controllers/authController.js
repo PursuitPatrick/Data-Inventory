@@ -47,7 +47,20 @@ async function loginUser(req, res) {
 
     const token = generateToken({ id: user.id, username: user.username });
     const refreshToken = generateRefreshToken({ id: user.id, username: user.username });
-    res.status(200).json({ token, refreshToken });
+
+    // Set refresh token as secure httpOnly cookie for cookie-based refresh flow
+    const cookieDomain = process.env.COOKIE_DOMAIN || undefined; // e.g., 'api.magmdomain.com'
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      domain: cookieDomain,
+      path: '/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // Return only the access token to the client
+    res.status(200).json({ token });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
