@@ -46,27 +46,36 @@ function verifyRefreshToken(token) {
 // Optional Express handler for refresh flow
 async function refreshTokenHandler(req, res) {
   try {
-    // Pull refresh token from secure cookie
-    const tokenFromCookie = req.cookies?.refreshToken;
-    if (!tokenFromCookie) {
-      return res.status(401).json({ message: 'No refresh token' });
+    // Accept refresh token from cookie (preferred) or request body/Authorization as fallback
+    let presented = req.cookies?.refreshToken;
+    if (!presented) {
+      presented = req.body?.refreshToken || null;
     }
-    const decoded = verifyRefreshToken(tokenFromCookie);
+    if (!presented) {
+      const auth = req.header('Authorization') || '';
+      if (auth.startsWith('Bearer ')) presented = auth.slice(7);
+    }
+    if (!presented) {
+      return res.status(400).json({ message: 'refreshToken is required' });
+    }
+    const decoded = verifyRefreshToken(presented);
     const newToken = generateToken({ id: decoded.id, username: decoded.username });
     const newRefresh = generateRefreshToken({ id: decoded.id, username: decoded.username });
 
-    // Rotate cookie
+    // Rotate cookie (even if body fallback used)
     const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
-    res.cookie('refreshToken', newRefresh, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None',
-      domain: cookieDomain,
-      path: '/auth',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    try {
+      res.cookie('refreshToken', newRefresh, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        domain: cookieDomain,
+        path: '/auth',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+    } catch (_) {}
 
-    return res.status(200).json({ token: newToken });
+    return res.status(200).json({ token: newToken, refreshToken: newRefresh });
   } catch (err) {
     const message = err?.name === 'TokenExpiredError' ? 'Refresh token expired. Please log in again.' : 'Invalid refresh token';
     return res.status(401).json({ message });

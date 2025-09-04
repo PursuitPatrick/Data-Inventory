@@ -59,8 +59,9 @@ async function loginUser(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // Return only the access token to the client
-    res.status(200).json({ token });
+    // Return access token and (optionally) refresh token for fallback clients
+    // Frontend should prefer cookie-based refresh; body refresh is a fallback for browsers blocking third-party cookies.
+    res.status(200).json({ token, refreshToken });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -30,15 +30,18 @@ export async function api(path, options = {}) {
   if (res.status === 401 && path !== '/auth/refresh') {
     // Try refresh once
     try {
+      const refreshToken = localStorage.getItem('REFRESH_TOKEN');
       const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
+        body: refreshToken ? JSON.stringify({ refreshToken }) : undefined,
       });
       if (refreshRes.ok) {
         const data = await refreshRes.json();
         if (data?.token) {
           localStorage.setItem('TOKEN', data.token);
+          if (data?.refreshToken) localStorage.setItem('REFRESH_TOKEN', data.refreshToken);
           // retry original request with new token
           final.headers = buildHeaders(headers);
           res = await fetch(`${API_URL}${path}`, final);
