@@ -46,6 +46,10 @@ export async function api(path, options = {}) {
           final.headers = buildHeaders(headers);
           res = await fetch(`${API_URL}${path}`, final);
         }
+      } else {
+        // If refresh fails, clear tokens so UI can prompt login
+        localStorage.removeItem('TOKEN');
+        localStorage.removeItem('REFRESH_TOKEN');
       }
     } catch (_) {}
   }
