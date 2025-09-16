@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const axios = require('axios');
 // Load environment variables from project root .env before loading config
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { serverConfig, dbConfig } = require('./config');
@@ -149,6 +150,120 @@ app.use('/api', require('./routes/inventoryShopifyRoutes'));
 
 // Shopify routes (protected)
 app.use('/shopify', require('./routes/shopifyRoutes'));
+
+// Minimal landing endpoints for eBay accepted/declined redirects (no UI)
+app.get('/landing/ebay/success', (req, res) => {
+  // Some eBay branded flows append ?code=... here. Forward to the OAuth callback.
+  if (req.query && req.query.code) {
+    const qs = new URLSearchParams(req.query).toString();
+    return res.redirect(302, `/auth/ebay/callback?${qs}`);
+  }
+  res.status(204).end();
+});
+app.get('/landing/ebay/cancel', (req, res) => {
+  res.status(204).end();
+});
+
+// eBay Notifications - GET: simple challenge echo (Option A)
+app.get('/ebay/notifications', (req, res) => {
+  try {
+    const challengeCode = req.query.challenge_code || req.query.challengeCode || '';
+    if (!challengeCode) {
+      return res.status(400).json({ message: 'Missing challenge_code' });
+    }
+    try {
+      console.log('🤝 eBay challenge received', { time: new Date().toISOString() });
+    } catch (_) {}
+    // Option A: return the challenge code in JSON
+    return res.status(200).json({ challengeResponse: challengeCode });
+  } catch (err) {
+    console.error('❌ /ebay/notifications (GET) error:', err?.message || err);
+    return res.status(500).json({ message: 'Internal error' });
+  }
+});
+
+// eBay Notifications endpoint - responds to challenge and logs incoming messages
+app.post('/ebay/notifications', async (req, res) => {
+  try {
+    const body = req.body || {};
+    // eBay may send challengeCode (preferred) or challenge
+    const challenge = body.challengeCode || body.challenge || body.challenge_code || '';
+
+    // Log minimal info for monitoring (avoid logging sensitive payloads in production)
+    try {
+      console.log('📨 eBay notification received', {
+        time: new Date().toISOString(),
+        hasChallenge: Boolean(challenge),
+        topic: body?.topic || body?.metadata?.topic || undefined,
+      });
+    } catch (_) {}
+
+    if (challenge && typeof challenge === 'string') {
+      // Persist challenge for diagnostics
+      try {
+        await pool.query(
+          'INSERT INTO ebay_webhook_verifications (challenge_code, topic) VALUES ($1, $2)',
+          [challenge, body?.topic || body?.metadata?.topic || null]
+        );
+      } catch (e) {
+        console.warn('⚠️ Failed to save ebay verification challenge:', e?.message || e);
+      }
+      return res.status(200).type('text/plain').send(challenge);
+    }
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('❌ /ebay/notifications error:', err?.message || err);
+    return res.status(500).json({ message: 'Internal error' });
+  }
+});
+
+// eBay OAuth callback – exchanges code for tokens
+app.get('/auth/ebay/callback', async (req, res) => {
+  try {
+    const code = req.query.code;
+    if (!code) {
+      return res.status(400).send('Missing code');
+    }
+    const isSandbox = String(process.env.EBAY_ENV || 'sandbox').toLowerCase() !== 'production';
+    const tokenUrl = isSandbox
+      ? 'https://api.sandbox.ebay.com/identity/v1/oauth2/token'
+      : 'https://api.ebay.com/identity/v1/oauth2/token';
+
+    const clientId = process.env.EBAY_CLIENT_ID;
+    const clientSecret = process.env.EBAY_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      return res.status(500).send('EBAY client credentials not configured');
+    }
+    // For eBay branded flow, redirect_uri must be the RuName value used in authorize step
+    const redirectParam = process.env.EBAY_RUNAME || process.env.EBAY_REDIRECT_URI;
+    if (!redirectParam) {
+      return res.status(500).send('EBAY_RUNAME or EBAY_REDIRECT_URI not configured');
+    }
+
+    const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const params = new URLSearchParams();
+    params.set('grant_type', 'authorization_code');
+    params.set('code', code);
+    params.set('redirect_uri', redirectParam);
+
+    const { data } = await axios.post(tokenUrl, params.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basic}`,
+      },
+    });
+
+    // TODO: persist data.refresh_token and data.access_token per tenant (encrypted)
+    // For now, show a simple success message without exposing full tokens
+    res.status(200).send(
+      'eBay connected successfully. You may close this window. (Tokens received)'
+    );
+  } catch (err) {
+    console.error('eBay callback error:', err?.response?.data || err.message);
+    const msg = err?.response?.data || { message: err?.message || 'Callback error' };
+    res.status(500).json(msg);
+  }
+});
 
 // Protected test route
 app.get('/secure/ping', authenticateToken, (req, res) => {

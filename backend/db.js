@@ -242,6 +242,16 @@ const initDatabase = async () => {
       )
     `);
 
+    // eBay webhook verification challenges (for diagnostics)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ebay_webhook_verifications (
+        id SERIAL PRIMARY KEY,
+        challenge_code TEXT,
+        topic TEXT,
+        received_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create table to store received Shopify webhooks (for auditing/deduplication)
     await client.query(`
       CREATE TABLE IF NOT EXISTS shopify_webhook_events (
