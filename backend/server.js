@@ -3,8 +3,12 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const axios = require('axios');
-// Load environment variables from project root .env before loading config
-require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+// Load environment variables from project root .env only in non-production, never override Render envs
+if ((process.env.NODE_ENV || '').toLowerCase() !== 'production') {
+  try {
+    require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+  } catch (_) {}
+}
 const { serverConfig, dbConfig } = require('./config');
 const { getAllInventory, getInventoryItem, updateInventoryItem, deleteInventoryItem, createInventoryItem } = require('./controllers/inventoryController');
 const { loginUser } = require('./controllers/authController');
@@ -311,6 +315,17 @@ app.use((err, req, res, next) => {
     console.error('❌ Database connection failed. Please check your PostgreSQL setup. Exiting.');
     process.exit(1);
   }
+
+  // Additional sanitized config summary (no secrets)
+  try {
+    console.log('Config summary:', {
+      SHOPIFY_SYNC_ENABLE: process.env.SHOPIFY_SYNC_ENABLE,
+      EBAY_ENV: process.env.EBAY_ENV,
+      EBAY_RUNAME_SET: Boolean(process.env.EBAY_RUNAME),
+      EBAY_VERIFICATION_TOKEN_SET: Boolean(process.env.EBAY_VERIFICATION_TOKEN),
+      COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || undefined,
+    });
+  } catch (_) {}
 
   try {
     console.log('📊 Initializing database tables...');
