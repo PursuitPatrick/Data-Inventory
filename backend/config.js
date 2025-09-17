@@ -1,5 +1,10 @@
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+// Load .env only in non-production to avoid overriding Render env vars
+if ((process.env.NODE_ENV || '').toLowerCase() !== 'production') {
+  try {
+    require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+  } catch (_) {}
+}
 
 // Database Configuration (read from environment variables with sane defaults)
 // Supports both DB_* and PG* environment variable names
